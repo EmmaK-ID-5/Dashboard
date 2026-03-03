@@ -20,6 +20,10 @@
   .data-status .dot.error{background:#ef4444;}
   .data-status .dot.loading{background:#f59e0b;animation:pulse 1s infinite;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  .error-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:20px;color:#991b1b;}
+  .error-banner h3{margin:0 0 8px;font-size:14px;font-weight:600;}
+  .error-banner p{margin:4px 0;font-size:12px;line-height:1.5;}
+  .error-banner code{background:#fee2e2;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:11px;}
   .container{display:grid;grid-template-columns:210px 1fr;height:calc(100vh - 46px);}
   .sidebar{background:var(--card);border-right:1px solid var(--border);padding:10px;overflow-y:auto;}
   .sidebar h3{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:9px 0 3px 0;}
@@ -146,7 +150,7 @@
   @media(max-width:1100px){.container{grid-template-columns:1fr;}.sidebar{border-right:none;border-bottom:1px solid var(--border);max-height:160px;}.detail-panel{width:100%;right:-100%;}}
   @media print{
     body{overflow:visible!important;background:#fff;}
-    .topbar,.sidebar,.panel-overlay,.detail-panel,.month-calendar,.view-controls,.kpi-row,.loading-overlay{display:none!important;}
+    .topbar,.sidebar,.panel-overlay,.detail-panel,.month-calendar,.view-controls,.kpi-row,.loading-overlay,.error-banner{display:none!important;}
     .container{display:block!important;height:auto!important;}
     .main{padding:0!important;overflow:visible!important;}
     .list-view{display:block!important;overflow:visible!important;}
@@ -193,6 +197,8 @@
     </div>
   </div>
 </div>
+
+<div id="errorContainer"></div>
 
 <div class="container">
   <div class="sidebar">
@@ -260,7 +266,7 @@ const CSV_URL = 'https://raw.githubusercontent.com/EmmaK-ID-5/Dashboard/main/Tra
 const TZM={'-8':{a:'PT'},'-5':{a:'ET'},'0':{a:'GMT'},'1':{a:'CET'},'2':{a:'SAST'},'5.5':{a:'IST'},'7':{a:'WIB'},'7.01':{a:'ICT'},'8':{a:'CST'},'10':{a:'AEST'}};
 function gOff(){return parseFloat(document.getElementById('tzSelector').value);}
 function gAbbr(){return TZM[document.getElementById('tzSelector').value]?.a||'GMT';}
-function cvt(g){if(!g)return{time:'',ds:0};const o=gOff(),[h,m]=g.split(':').map(Number);let t=h*60+m+Math.round(o*60),d=0;if(t<0){t+=1440;d=-1;}if(t>=1440){t-=1440;d=1;}return{time:`$${String(Math.floor(t/60)).padStart(2,'0')}:$${String(t%60).padStart(2,'0')}`,ds:d};}
+function cvt(g){if(!g)return{time:'',ds:0};const o=gOff(),[h,m]=g.split(':').map(Number);let t=h*60+m+Math.round(o*60),d=0;if(t<0){t+=1440;d=-1;}if(t>=1440){t-=1440;d=1;}return{time:`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`,ds:d};}
 function fmt(g){if(!g)return'TBC';const{time,ds}=cvt(g);return time+(ds===1?'<span class="day-shift">+1d</span>':ds===-1?'<span class="day-shift">−1d</span>':'');}
 function fmtP(g){if(!g)return'TBC';const{time,ds}=cvt(g);return time+(ds===1?' (+1d)':ds===-1?' (−1d)':'');}
 
@@ -271,12 +277,244 @@ function normalizeDate(raw){
   if(/^\d{4}\/\d{2}\/\d{2}$/.test(s))return s.replace(/\//g,'-');
   let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
   if(m){const d=parseInt(m[1]),mo=parseInt(m[2]),y=parseInt(m[3]);
-    if(d>12)return`$${y}-$${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    return`$${y}-$${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
-  const p=new Date(s);if(!isNaN(p))return`$${p.getUTCFullYear()}-$${String(p.getUTCMonth()+1).padStart(2,'0')}-${String(p.getUTCDate()).padStart(2,'0')}`;
+    if(d>12)return`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    return`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+  const p=new Date(s);if(!isNaN(p))return`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,'0')}-${String(p.getUTCDate()).padStart(2,'0')}`;
   return null;
 }
 function dateYear(d){return parseInt(d.substring(0,4));}
 function dateMonth(d){return parseInt(d.substring(5,7))-1;}
 function dateShort(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'});}
-function dateFull(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:
+function dateFull(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});}
+
+// ===== STATE =====
+let CY=2026,CM=0,selDate=null,curView='calendar';
+let DATA=[];
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const RL={'APAC':'🌏 APAC','EMEA':'🌍 EMEA','UK':'🇬🇧 UK','LATAM':'🌎 LATAM','NA-Eastern':'🇺🇸 NA East','NA-Pacific':'🇺🇸 NA Pacific'};
+const LF={'English':'🇬🇧','Brazilian Portuguese':'🇧🇷','Spanish':'🇪🇸'};
+
+// ===== ERROR DISPLAY =====
+function showError(title,message){
+  console.error(title,message);
+  const html=`
+    <div class="error-banner">
+      <h3>⚠️ ${title}</h3>
+      <p>${message}</p>
+      <p style="margin-top:12px;font-size:11px;color:#7c2d12;"><strong>Tried to load:</strong><br><code>${CSV_URL}</code></p>
+      <p style="margin-top:8px;font-size:10px;color:#6b21a8;"><strong>Next steps:</strong><br>1. Open your browser's Developer Tools (F12)<br>2. Click the Console tab<br>3. Check for red error messages<br>4. Share those with me</p>
+    </div>
+  `;
+  document.getElementById('errorContainer').innerHTML=html;
+}
+
+// ===== CSV LOADER =====
+async function loadCSV(){
+  try{
+    console.log('Fetching CSV from:',CSV_URL);
+    const resp=await fetch(CSV_URL);
+    console.log('Response status:',resp.status,resp.statusText);
+    
+    if(!resp.ok){
+      showError('Network Error',`HTTP ${resp.status}: ${resp.statusText}`);
+      setStatus('error',`HTTP ${resp.status}`);
+      return;
+    }
+    
+    let text=await resp.text();
+    console.log('CSV length:',text.length,'bytes');
+    console.log('First 200 chars:',text.substring(0,200));
+    
+    if(text.charCodeAt(0)===0xFEFF)text=text.substring(1);
+    const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+    console.log('Total lines:',lines.length);
+    
+    if(lines.length<2){
+      showError('CSV Too Short',`Only ${lines.length} line(s) found. Need at least 2 (header + 1 data row).`);
+      setStatus('error','CSV too short');
+      return;
+    }
+    
+    const headers=parseCSVLine(lines[0]);
+    console.log('Headers found:',headers);
+    const colMap={};
+    headers.forEach((h,i)=>{colMap[h.trim().replace(/^"|"$/g,'').replace(/^\uFEFF/,'')]=i;});
+    
+    function findCol(name){if(colMap[name]!==undefined)return colMap[name];const lc=name.toLowerCase();for(const[k,v]of Object.entries(colMap)){if(k.toLowerCase()===lc)return v;}return undefined;}
+    
+    const C={date:findCol('SessionDate'),title:findCol('SessionTitle'),gmt:findCol('StartTimeGMT'),cat:findCol('SessionCategory'),type:findCol('SessionType'),ws:findCol('Workstream'),trainer:findCol('TrainerName'),regions:findCol('TargetRegions'),lang:findCol('Language'),status:findCol('Status'),flag:findCol('EventFlag'),flagDetail:findCol('FlagDetail'),desc:findCol('Description')};
+    
+    console.log('Column mapping:',C);
+    
+    if(C.date===undefined){
+      showError('Missing Column','Could not find "SessionDate" column. Available columns: '+headers.join(', '));
+      setStatus('error','Missing SessionDate');
+      return;
+    }
+    
+    const newData=[];let skipped=0;
+    for(let i=1;i<lines.length;i++){
+      const vals=parseCSVLine(lines[i]);
+      const get=c=>c!==undefined&&vals[c]!==undefined?vals[c].trim().replace(/^"|"$/g,''):'';
+      const date=normalizeDate(get(C.date));
+      if(!date){skipped++;continue;}
+      const title=get(C.title),flag=get(C.flag)||'Training Session';
+      if(!title&&!get(C.flagDetail)&&flag==='Training Session'){skipped++;continue;}
+      newData.push({date,gmt:get(C.gmt),title:title||get(C.flagDetail)||'',cat:get(C.cat),type:get(C.type),ws:get(C.ws)||'Tech L&D',trainer:get(C.trainer)||'Unknown',regions:(get(C.regions)||'').split(';').map(r=>r.trim()).filter(r=>r),lang:get(C.lang)||'English',status:get(C.status)||'Scheduled',flag,flagDetail:get(C.flagDetail),desc:get(C.desc)});
+    }
+    
+    console.log('Rows parsed:',newData.length,'Rows skipped:',skipped);
+    
+    if(!newData.length){
+      showError('No Valid Data',`Parsed ${newData.length} rows. ${skipped} rows were skipped (blank or invalid date).`);
+      setStatus('error','No valid rows');
+      return;
+    }
+    
+    DATA=newData;
+    const first=DATA.find(d=>d.flag==='Training Session')?.date||DATA[0].date;
+    CY=dateYear(first);CM=dateMonth(first);
+    buildDynamicFilters();render();
+    setStatus('live',`✅ Loaded ${DATA.length} sessions`);
+    document.getElementById('errorContainer').innerHTML='';
+    
+  }catch(err){
+    console.error('CSV load error:',err);
+    showError('Load Error',`${err.message}<br><br><strong>Details:</strong> ${err.toString()}`);
+    setStatus('error','Failed to load');
+  }finally{
+    document.getElementById('loadingOverlay').classList.add('hidden');
+  }
+}
+
+function setStatus(type,msg){
+  const el=document.getElementById('dataStatus');
+  const cls=type==='live'?'dot':type==='error'?'dot error':'dot loading';
+  el.innerHTML=`<span class="${cls}"></span> ${msg}`;
+}
+
+function parseCSVLine(line){
+  const r=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){r.push(cur);cur='';}else cur+=c;}
+  r.push(cur);return r;
+}
+
+// ===== DYNAMIC FILTERS =====
+function buildDynamicFilters(){
+  const trainers=[...new Set(DATA.map(d=>d.trainer))].filter(t=>t).sort();
+  document.getElementById('trainerFilters').innerHTML=trainers.map(t=>`<label><input type="checkbox" value="${t}" checked onchange="render()"> ${t}</label>`).join('');
+  const wsC={'Tech L&D':'tech-ld','Pencil':'pencil','L&D':'ld'};
+  const wsList=[...new Set(DATA.map(d=>d.ws))].filter(w=>w).sort();
+  document.getElementById('wsFilters').innerHTML=wsList.map(w=>`<label><input type="checkbox" value="${w}" checked onchange="render()"><span class="badge ${wsC[w]||'tech-ld'}"></span> ${w}</label>`).join('');
+  const catI={'Pencil':'🖊️','Gen AI':'🤖','Core Skills':'📚','Webinars':'📡'};
+  const cats=[...new Set(DATA.map(d=>d.cat))].filter(c=>c).sort();
+  document.getElementById('catFilters').innerHTML=cats.map(c=>`<label><input type="checkbox" value="${c}" checked onchange="render()"> ${catI[c]||'📄'} ${c}</label>`).join('');
+  const flagI={'Training Session':'✅','Public Holiday':'🔴'};
+  const flags=[...new Set(DATA.map(d=>d.flag))].filter(f=>f);
+  document.getElementById('flagFilters').innerHTML=flags.map(f=>`<label><input type="checkbox" value="${f}" checked onchange="render()"> ${flagI[f]||'🔹'} ${f}</label>`).join('');
+  const langs=[...new Set(DATA.map(d=>d.lang))].filter(l=>l).sort();
+  document.getElementById('langSelector').innerHTML='<option value="All">🗣️ All Languages</option>'+langs.map(l=>`<option value="${l}">${LF[l]||'🌐'} ${l}</option>`).join('');
+  const regions=new Set();DATA.forEach(d=>d.regions.forEach(r=>regions.add(r)));
+  document.getElementById('regionSelector').innerHTML='<option value="All">🌐 All Regions</option>'+[...regions].sort().map(r=>`<option value="${r}">${RL[r]||r}</option>`).join('');
+}
+
+// ===== HELPERS =====
+function gC(id){return[...document.querySelectorAll(`#${id} input:checked`)].map(c=>c.value);}
+function getMD(){
+  const ws=gC('wsFilters'),rg=document.getElementById('regionSelector').value,ln=document.getElementById('langSelector').value,tr=gC('trainerFilters'),ca=gC('catFilters'),fl=gC('flagFilters'),st=document.getElementById('statusFilter').value;
+  return DATA.filter(d=>{
+    if(dateYear(d.date)!==CY||dateMonth(d.date)!==CM)return false;
+    if(ws.length&&!ws.includes(d.ws))return false;
+    if(tr.length&&!tr.includes(d.trainer))return false;
+    if(d.cat&&ca.length&&!ca.includes(d.cat)&&d.flag==='Training Session')return false;
+    if(fl.length&&!fl.includes(d.flag))return false;
+    if(st!=='All'&&d.status!==st)return false;
+    if(rg!=='All'&&d.regions.length&&!d.regions.includes(rg))return false;
+    if(ln!=='All'&&d.lang&&d.lang!==ln)return false;
+    return true;
+  });
+}
+function gMW(y,m){
+  const f=new Date(Date.UTC(y,m,1)),l=new Date(Date.UTC(y,m+1,0));
+  let s=new Date(f);const dw=s.getUTCDay()||7;s.setUTCDate(s.getUTCDate()-(dw-1));
+  let e=new Date(l);const ed=e.getUTCDay()||7;
+  if(ed<5)e.setUTCDate(e.getUTCDate()+(5-ed));else if(ed>5)e.setUTCDate(e.getUTCDate()+(12-ed));
+  const wks=[];let c=new Date(s),wk=[];
+  while(c<=e){const d=c.getUTCDay();if(d>=1&&d<=5){const iso=c.toISOString().split('T')[0];wk.push({date:iso,day:c.getUTCDate(),month:c.getUTCMonth(),isCM:c.getUTCMonth()===m,isT:iso===new Date().toISOString().split('T')[0]});if(d===5){wks.push(wk);wk=[];}}c.setUTCDate(c.getUTCDate()+1);}
+  if(wk.length)wks.push(wk);return wks;
+}
+function wsC(w,f){if(f==='Public Holiday')return'ws-holiday';return w==='Tech L&D'?'ws-tech-ld':w==='Pencil'?'ws-pencil':'ws-ld';}
+function wsTC(w){return w==='Tech L&D'?'tech-ld':w==='Pencil'?'pencil':'ld';}
+function catC(c){return c==='Pencil'?'c-pencil':c==='Gen AI'?'c-genai':c==='Webinars'?'c-webinar':'c-core';}
+function fT(f,d){return f==='Training Session'?'':`<span class="flag-tag holiday">${d||f}</span>`;}
+
+// ===== RENDER =====
+function render(){
+  if(!DATA.length)return;
+  const F=getMD(),W=gMW(CY,CM),tz=gAbbr();
+  const rS=document.getElementById('regionSelector'),lS=document.getElementById('langSelector');
+  document.getElementById('monthLabel').textContent=`${MN[CM]} ${CY}`;
+  document.getElementById('tzBadge').textContent=tz;
+  document.getElementById('regionBadge').textContent=rS.options[rS.selectedIndex].text;
+  document.getElementById('langBadge').textContent=lS.options[lS.selectedIndex].text;
+  const sess=F.filter(d=>d.flag==='Training Session'),aR=new Set();
+  sess.forEach(d=>d.regions.forEach(r=>aR.add(r)));
+  document.getElementById('kpiTotal').textContent=sess.length;
+  document.getElementById('kpiPencil').textContent=sess.filter(d=>d.cat==='Pencil').length;
+  document.getElementById('kpiWebinars').textContent=sess.filter(d=>d.cat==='Webinars').length;
+  document.getElementById('kpiRegions').textContent=aR.size;
+  document.getElementById('kpiAlerts').textContent=F.filter(d=>d.flag==='Public Holiday').length;
+  const bD={};F.forEach(d=>{if(!bD[d.date])bD[d.date]=[];bD[d.date].push(d);});
+  const g=document.getElementById('monthGrid');
+  g.style.gridTemplateRows=`repeat(${W.length},1fr)`;g.innerHTML='';
+  W.forEach(wk=>wk.forEach(di=>{
+    const ev=(bD[di.date]||[]).sort((a,b)=>(a.gmt||'').localeCompare(b.gmt||''));
+    const cn=ev.filter(e=>e.flag==='Training Session').length;
+    let eh='';ev.forEach(e=>{const t=e.title||e.flagDetail,tm=e.gmt?`<span class="ev-time">${fmt(e.gmt)}</span> `:'';
+      const mt=e.flag==='Training Session'?`<div class="ev-meta">${e.trainer}·${e.regions.slice(0,2).join(',')}${e.regions.length>2?'…':''}</div>`:'';
+      eh+=`<div class="m-event ${wsC(e.ws,e.flag)}">${tm}${t}${mt}</div>`;});
+    if(!ev.length&&di.isCM)eh='<div style="font-size:6px;color:#d1d5db;padding:1px">—</div>';
+    g.innerHTML+=`<div class="month-day${di.isCM?'':' outside'}${di.isT?' today':''}${selDate===di.date?' selected':''}" onclick="openP('${di.date}')"><div class="month-day-hdr"><span class="date-num">${di.day}</span>${cn?`<span class="session-count">${cn}</span>`:''}</div><div class="month-day-body">${eh}</div></div>`;
+  }));
+  const lb=document.getElementById('listBody');lb.innerHTML='';
+  [...F].sort((a,b)=>a.date.localeCompare(b.date)||(a.gmt||'').localeCompare(b.gmt||'')).forEach(d=>{
+    const t=d.title||d.flagDetail||'—',rp=d.regions.map(r=>`<span class="region-pill">${r}</span>`).join('');
+    const ct=d.cat?`<span class="cat-tag ${catC(d.cat)}">${d.cat}</span>`:'—';
+    const lt=d.lang?`<span class="lang-tag">${LF[d.lang]||''} ${d.lang}</span>`:'—';
+    lb.innerHTML+=`<tr onclick="openP('${d.date}')"><td>${dateShort(d.date)}</td><td>${d.gmt?fmt(d.gmt)+' <span style="font-size:7px;color:#9ca3af">'+tz+'</span>':'—'}</td><td><strong>${t}</strong><br><span style="font-size:8px;color:#6b7280">${d.type||''}</span></td><td>${ct}</td><td>${lt}</td><td><span class="ws-tag ${wsTC(d.ws)}">${d.ws}</span></td><td>${d.trainer}</td><td><div class="region-pills">${rp}</div></td><td>${fT(d.flag,d.flagDetail)}</td></tr>`;
+  });
+  document.getElementById('printTitle').textContent=`Training Schedule — ${MN[CM]} ${CY}`;
+  document.getElementById('printMeta').textContent=`Region: ${rS.options[rS.selectedIndex].text} · Language: ${lS.options[lS.selectedIndex].text} · Times in ${tz} · Printed ${new Date().toLocaleDateString('en-GB')}`;
+  if(selDate&&document.getElementById('detailPanel').classList.contains('open'))renderP(selDate);
+}
+
+// ===== PANEL =====
+function openP(d){selDate=d;document.getElementById('panelOverlay').classList.add('open');document.getElementById('detailPanel').classList.add('open');renderP(d);render();}
+function closePanel(){selDate=null;document.getElementById('panelOverlay').classList.remove('open');document.getElementById('detailPanel').classList.remove('open');render();}
+function renderP(ds){
+  const tz=gAbbr();
+  document.getElementById('panelTitle').textContent=dateShort(ds);
+  document.getElementById('panelDateSub').textContent=`${dateFull(ds)} · Times in ${tz}`;
+  const ws=gC('wsFilters'),rg=document.getElementById('regionSelector').value,ln=document.getElementById('langSelector').value,tr=gC('trainerFilters'),ca=gC('catFilters'),fl=gC('flagFilters'),st=document.getElementById('statusFilter').value;
+  const dD=DATA.filter(d=>{if(d.date!==ds)return false;if(ws.length&&!ws.includes(d.ws))return false;if(tr.length&&!tr.includes(d.trainer))return false;if(d.cat&&ca.length&&!ca.includes(d.cat)&&d.flag==='Training Session')return false;if(fl.length&&!fl.includes(d.flag))return false;if(st!=='All'&&d.status!==st)return false;if(rg!=='All'&&d.regions.length&&!d.regions.includes(rg))return false;if(ln!=='All'&&d.lang&&d.lang!==ln)return false;return true;}).sort((a,b)=>(a.gmt||'').localeCompare(b.gmt||''));
+  const body=document.getElementById('panelBody');
+  if(!dD.length){body.innerHTML='<div class="panel-empty"><div class="pe-icon">📭</div><div class="pe-text">No sessions scheduled<br>(with current filters)</div></div>';return;}
+  const ss=dD.filter(d=>d.flag==='Training Session'),hols=dD.filter(d=>d.flag==='Public Holiday');
+  let h=`<div class="panel-summary"><div class="panel-stat"><div class="ps-val">${ss.length}</div><div class="ps-label">Sessions</div></div><div class="panel-stat"><div class="ps-val">${new Set(ss.map(d=>d.ws)).size}</div><div class="ps-label">Workstreams</div></div><div class="panel-stat"><div class="ps-val">${new Set(ss.map(d=>d.cat).filter(Boolean)).size}</div><div class="ps-label">Categories</div></div></div>`;
+  hols.forEach(ho=>{h+=`<div class="panel-holiday-banner"><div class="ph-icon">🔴</div><div class="ph-text">${ho.title||ho.flagDetail}</div><div class="ph-regions">${ho.regions.map(r=>RL[r]||r).join(' · ')}</div></div>`;});
+  if(hols.length&&ss.length)h+='<div class="panel-divider"></div>';
+  ss.forEach(s=>{const cT=s.cat?`<span class="cat-tag ${catC(s.cat)}">${s.cat}</span>`:'';const lT=s.lang?`<span class="lang-tag">${LF[s.lang]||''} ${s.lang}</span>`:'';
+    h+=`<div class="panel-session"><div class="panel-session-header ${wsC(s.ws,s.flag)}"><div><div class="panel-session-title">${s.title}</div><div class="panel-session-type">${s.type} · <span class="ws-tag ${wsTC(s.ws)}">${s.ws}</span> ${cT} ${lT}</div></div><div class="panel-session-time">${s.gmt?fmt(s.gmt):''}<br><span class="tz-label">${tz}</span></div></div><div class="panel-session-body"><div class="detail-row"><span class="detail-label">Trainer</span><span class="detail-value">${s.trainer}</span></div><div class="detail-row"><span class="detail-label">Regions</span><span class="detail-value">${s.regions.map(r=>RL[r]||r).join(', ')}</span></div><div class="detail-row"><span class="detail-label">Language</span><span class="detail-value">${LF[s.lang]||''} ${s.lang||'—'}</span></div><div class="detail-row"><span class="detail-label">GMT</span><span class="detail-value">${s.gmt||'TBC'} GMT</span></div><div class="detail-row"><span class="detail-label">Local</span><span class="detail-value">${fmtP(s.gmt)} ${tz}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${s.status}</span></div></div><div class="panel-session-desc">📝 ${s.desc||'Description to be added.'}</div></div>`;});
+  body.innerHTML=h;
+}
+
+function navMonth(d){CM+=d;if(CM>11){CM=0;CY++;}if(CM<0){CM=11;CY--;}render();}
+function switchView(v,btn){curView=v;document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelector('.month-calendar').classList.toggle('active',v==='calendar');document.querySelector('.list-view').classList.toggle('active',v==='list');document.getElementById('printBtn').classList.toggle('show',v==='list');}
+function printList(){window.print();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel();});
+
+// ===== INIT =====
+loadCSV();
+</script>
+</body>
+</html>
