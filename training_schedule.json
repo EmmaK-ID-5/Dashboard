@@ -1,0 +1,7 @@
+[  
+  {    "eventId": 1,    "eventName": "Yoga Class",    "date": "2026-03-04",    "time": "08:00:00",    "duration": "1 hour",    "location": "Downtown Wellness Center"  },  
+  {    "eventId": 2,    "eventName": "Kickboxing Session",    "date": "2026-03-06",    "time": "18:00:00",    "duration": "1 hour",    "location": "Gym on Main"  },  
+  {    "eventId": 3,    "eventName": "Pilates Class",    "date": "2026-03-08",    "time": "09:00:00",    "duration": "1 hour",    "location": "Fitness Studio"  },  
+  {    "eventId": 4,    "eventName": "Swimming Training",    "date": "2026-03-10",    "time": "17:00:00",    "duration": "1 hour",    "location": "City Pool"  },  
+  {    "eventId": 5,    "eventName": "Running Club",    "date": "2026-03-12",    "time": "07:00:00",    "duration": "1 hour",    "location": "Central Park"  }  
+]
