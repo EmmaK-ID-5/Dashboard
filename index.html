@@ -295,7 +295,7 @@ function dateShort(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateSt
 function dateFull(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});}
 
 // ===== STATE =====
-let CY=2026,CM=6,selDate=null,curView='calendar';
+let CY=2026,CM=0,selDate=null,curView='calendar';
 let DATA=[];
 const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const RL={'APAC':'🌏 APAC','EMEA':'🌍 EMEA','UK':'🇬🇧 UK','LATAM':'🌎 LATAM','NA-Eastern':'🇺🇸 NA East','NA-Pacific':'🇺🇸 NA Pacific'};
