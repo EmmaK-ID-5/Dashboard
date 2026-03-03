@@ -363,7 +363,6 @@ async function loadCSV(){
       const date=normalizeDate(get(C.date));
       if(!date){skipped++;continue;}
       const title=get(C.title),flag=get(C.flag)||'Training Session';
-      if(!title&&!get(C.flagDetail)&&flag==='Training Session'){skipped++;continue;}
       newData.push({date,gmt:get(C.gmt),title:title||get(C.flagDetail)||'',cat:get(C.cat),type:get(C.type),ws:get(C.ws)||'Tech L&D',trainer:get(C.trainer)||'Unknown',regions:(get(C.regions)||'').split(';').map(r=>r.trim()).filter(r=>r),lang:get(C.lang)||'English',status:get(C.status)||'Scheduled',flag,flagDetail:get(C.flagDetail),desc:get(C.desc)});
     }
     
