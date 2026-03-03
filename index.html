@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Schedule</title>
+    <script>
+        async function fetchSchedule() {
+            const response = await fetch('schedule.json');
+            const data = await response.json();
+            displaySchedule(data);
+        }
+
+        function displaySchedule(schedule) {
+            const scheduleContainer = document.getElementById('schedule');
+            schedule.forEach(entry => {
+                const div = document.createElement('div');
+                div.innerHTML = `<h3>${entry.title}</h3><p>${entry.time}</p>`;
+                scheduleContainer.appendChild(div);
+            });
+        }
+
+        window.onload = fetchSchedule;
+    </script>
+</head>
+<body>
+    <h1>Training Schedule</h1>
+    <div id="schedule"></div>
+</body>
+</html>
