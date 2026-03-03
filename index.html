@@ -23,7 +23,6 @@
   .error-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:20px;color:#991b1b;}
   .error-banner h3{margin:0 0 8px;font-size:14px;font-weight:600;}
   .error-banner p{margin:4px 0;font-size:12px;line-height:1.5;}
-  .error-banner code{background:#fee2e2;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:11px;}
   .container{display:grid;grid-template-columns:210px 1fr;height:calc(100vh - 46px);}
   .sidebar{background:var(--card);border-right:1px solid var(--border);padding:10px;overflow-y:auto;}
   .sidebar h3{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:9px 0 3px 0;}
@@ -270,15 +269,23 @@ function cvt(g){if(!g)return{time:'',ds:0};const o=gOff(),[h,m]=g.split(':').map
 function fmt(g){if(!g)return'TBC';const{time,ds}=cvt(g);return time+(ds===1?'<span class="day-shift">+1d</span>':ds===-1?'<span class="day-shift">−1d</span>':'');}
 function fmtP(g){if(!g)return'TBC';const{time,ds}=cvt(g);return time+(ds===1?' (+1d)':ds===-1?' (−1d)':'');}
 
-// ===== DATE UTILS (TIMEZONE-SAFE) =====
+// ===== DATE UTILS (TIMEZONE-SAFE) - FIXED FOR DD/MM/YYYY =====
 function normalizeDate(raw){
   if(!raw)return null;let s=raw.trim();
   if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
   if(/^\d{4}\/\d{2}\/\d{2}$/.test(s))return s.replace(/\//g,'-');
-  let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if(m){const d=parseInt(m[1]),mo=parseInt(m[2]),y=parseInt(m[3]);
-    if(d>12)return`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    return`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+  
+  // Handle DD/MM/YYYY format (your CSV format)
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){
+    const day=parseInt(m[1]),month=parseInt(m[2]),year=parseInt(m[3]);
+    // If day > 12, it's definitely DD/MM format
+    if(day>12)return`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    // If month > 12, it's definitely MM/DD format
+    if(month>12)return`${year}-${String(day).padStart(2,'0')}-${String(month).padStart(2,'0')}`;
+    // Otherwise assume DD/MM (since your CSV appears to use this)
+    return`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  }
   const p=new Date(s);if(!isNaN(p))return`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,'0')}-${String(p.getUTCDate()).padStart(2,'0')}`;
   return null;
 }
@@ -288,7 +295,7 @@ function dateShort(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateSt
 function dateFull(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});}
 
 // ===== STATE =====
-let CY=2026,CM=0,selDate=null,curView='calendar';
+let CY=2026,CM=6,selDate=null,curView='calendar';
 let DATA=[];
 const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const RL={'APAC':'🌏 APAC','EMEA':'🌍 EMEA','UK':'🇬🇧 UK','LATAM':'🌎 LATAM','NA-Eastern':'🇺🇸 NA East','NA-Pacific':'🇺🇸 NA Pacific'};
@@ -301,8 +308,6 @@ function showError(title,message){
     <div class="error-banner">
       <h3>⚠️ ${title}</h3>
       <p>${message}</p>
-      <p style="margin-top:12px;font-size:11px;color:#7c2d12;"><strong>Tried to load:</strong><br><code>${CSV_URL}</code></p>
-      <p style="margin-top:8px;font-size:10px;color:#6b21a8;"><strong>Next steps:</strong><br>1. Open your browser's Developer Tools (F12)<br>2. Click the Console tab<br>3. Check for red error messages<br>4. Share those with me</p>
     </div>
   `;
   document.getElementById('errorContainer').innerHTML=html;
@@ -323,7 +328,6 @@ async function loadCSV(){
     
     let text=await resp.text();
     console.log('CSV length:',text.length,'bytes');
-    console.log('First 200 chars:',text.substring(0,200));
     
     if(text.charCodeAt(0)===0xFEFF)text=text.substring(1);
     const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
@@ -380,7 +384,7 @@ async function loadCSV(){
     
   }catch(err){
     console.error('CSV load error:',err);
-    showError('Load Error',`${err.message}<br><br><strong>Details:</strong> ${err.toString()}`);
+    showError('Load Error',`${err.message}`);
     setStatus('error','Failed to load');
   }finally{
     document.getElementById('loadingOverlay').classList.add('hidden');
