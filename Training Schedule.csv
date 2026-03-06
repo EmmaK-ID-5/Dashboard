@@ -1,7 +1,7 @@
 SessionDate,DayOfWeek,WeekNumber,StartTimeGMT,EndTimeGMT,SessionTitle,SessionCategory,SessionType,Workstream,TrainerName,TargetRegions,Language,TargetAudience,Status,EventFlag,FlagDetail,Description,RecurringSeries,SeriesName,Notes
-01/01/2025,Thursday,1,,,New Years Day,,,,,,,,,Public Holiday,New Years Day,,No,,
-02/01/2025,Friday,1,,,Office Closed,,,,,,,,,Public Holiday,Office Closed,,No,,
-05/01/2025,Monday,1,,,,,,,,,,,,,,,,,
+01/01/2026,Thursday,1,,,New Years Day,,,,,,,,,Public Holiday,New Years Day,,No,,
+02/01/2026,Friday,1,,,Office Closed,,,,,,,,,Public Holiday,Office Closed,,No,,
+05/01/2026,Monday,1,,,,,,,,,,,,,,,,,
 06/01/2026,Tuesday,2,14:00,15:00,Pencil 101,Pencil,Live Workshop,Tech L&D,Enrique,LATAM;UK;NA-Eastern,English,All Staff,Completed,Training Session,,In this Pencil 101 session we will walk you through a high level overview of Pencil and it's features and benefits.,Yes,Pencil Silver Pathway,
 07/01/2026,Wednesday,2,14:00,15:00,Pencil Copy and Strategy,Pencil,Live Workshop,Tech L&D,Enrique,LATAM;UK;NA-Eastern,English,Creative,Completed,Training Session,,The key to a good marketing campaign is a clear strategy.  This course explores the essential techniques for generating strategy and content to enhance your marketing efforts. Learn how to utilise LLMs to produce copy in multiple languages and explore text analysis tools to refine your content,Yes,Pencil Silver Pathway,
 08/01/2026,Thursday,2,09:30,10:30,Text Prompting for Beginners,Gen AI,Live Workshop,Tech L&D,Enrique,APAC;EMEA,English,All Staff,Completed,Training Session,,"This interactive course provides real time, hands-on experience in crafting effective text prompts for storytelling, copywriting, and idea generation. Join us live and take the first step towards becoming a master of text prompting!",No,,
