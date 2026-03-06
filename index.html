@@ -217,8 +217,6 @@
     <div class="sidebar-divider"></div>
     <h3>Workstream</h3>
     <div class="filter-group" id="wsFilters"></div>
-    <h3>Trainer</h3>
-    <div class="filter-group" id="trainerFilters"></div>
     <h3>Category</h3>
     <div class="filter-group" id="catFilters"></div>
     <h3>Event Flags</h3>
@@ -409,8 +407,6 @@ function parseCSVLine(line){
 
 // ===== DYNAMIC FILTERS =====
 function buildDynamicFilters(){
-  const trainers=[...new Set(DATA.map(d=>d.trainer))].filter(t=>t).sort();
-  document.getElementById('trainerFilters').innerHTML=trainers.map(t=>`<label><input type="checkbox" value="${t}" checked onchange="render()"> ${t}</label>`).join('');
   const wsC={'Tech L&D':'tech-ld','Pencil':'pencil','L&D':'ld'};
   const wsList=[...new Set(DATA.map(d=>d.ws))].filter(w=>w).sort();
   document.getElementById('wsFilters').innerHTML=wsList.map(w=>`<label><input type="checkbox" value="${w}" checked onchange="render()"><span class="badge ${wsC[w]||'tech-ld'}"></span> ${w}</label>`).join('');
@@ -429,11 +425,10 @@ function buildDynamicFilters(){
 // ===== HELPERS =====
 function gC(id){return[...document.querySelectorAll(`#${id} input:checked`)].map(c=>c.value);}
 function getMD(){
-  const ws=gC('wsFilters'),rg=document.getElementById('regionSelector').value,ln=document.getElementById('langSelector').value,tr=gC('trainerFilters'),ca=gC('catFilters'),fl=gC('flagFilters'),st=document.getElementById('statusFilter').value;
+  const ws=gC('wsFilters'),rg=document.getElementById('regionSelector').value,ln=document.getElementById('langSelector').value,ca=gC('catFilters'),fl=gC('flagFilters'),st=document.getElementById('statusFilter').value;
   return DATA.filter(d=>{
     if(dateYear(d.date)!==CY||dateMonth(d.date)!==CM)return false;
     if(ws.length&&!ws.includes(d.ws))return false;
-    if(tr.length&&!tr.includes(d.trainer))return false;
     if(d.cat&&ca.length&&!ca.includes(d.cat)&&d.flag==='Training Session')return false;
     if(fl.length&&!fl.includes(d.flag))return false;
     if(st!=='All'&&d.status!==st)return false;
@@ -503,8 +498,8 @@ function renderP(ds){
   const tz=gAbbr();
   document.getElementById('panelTitle').textContent=dateShort(ds);
   document.getElementById('panelDateSub').textContent=`${dateFull(ds)} · Times in ${tz}`;
-  const ws=gC('wsFilters'),rg=document.getElementById('regionSelector').value,ln=document.getElementById('langSelector').value,tr=gC('trainerFilters'),ca=gC('catFilters'),fl=gC('flagFilters'),st=document.getElementById('statusFilter').value;
-  const dD=DATA.filter(d=>{if(d.date!==ds)return false;if(ws.length&&!ws.includes(d.ws))return false;if(tr.length&&!tr.includes(d.trainer))return false;if(d.cat&&ca.length&&!ca.includes(d.cat)&&d.flag==='Training Session')return false;if(fl.length&&!fl.includes(d.flag))return false;if(st!=='All'&&d.status!==st)return false;if(rg!=='All'&&d.regions.length&&!d.regions.includes(rg))return false;if(ln!=='All'&&d.lang&&d.lang!==ln)return false;return true;}).sort((a,b)=>(a.gmt||'').localeCompare(b.gmt||''));
+  const ws=gC('wsFilters'),rg=document.getElementById('regionSelector').value,ln=document.getElementById('langSelector').value,ca=gC('catFilters'),fl=gC('flagFilters'),st=document.getElementById('statusFilter').value;
+  const dD=DATA.filter(d=>{if(d.date!==ds)return false;if(ws.length&&!ws.includes(d.ws))return false;if(d.cat&&ca.length&&!ca.includes(d.cat)&&d.flag==='Training Session')return false;if(fl.length&&!fl.includes(d.flag))return false;if(st!=='All'&&d.status!==st)return false;if(rg!=='All'&&d.regions.length&&!d.regions.includes(rg))return false;if(ln!=='All'&&d.lang&&d.lang!==ln)return false;return true;}).sort((a,b)=>(a.gmt||'').localeCompare(b.gmt||''));
   const body=document.getElementById('panelBody');
   if(!dD.length){body.innerHTML='<div class="panel-empty"><div class="pe-icon">📭</div><div class="pe-text">No sessions scheduled<br>(with current filters)</div></div>';return;}
   const ss=dD.filter(d=>d.flag==='Training Session'),hols=dD.filter(d=>d.flag==='Public Holiday');
