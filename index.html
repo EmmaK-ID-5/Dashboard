@@ -132,6 +132,9 @@
   .panel-session-body .detail-row{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:9.5px;}
   .panel-session-body .detail-label{font-size:7px;text-transform:uppercase;color:var(--text-muted);width:58px;flex-shrink:0;}
   .panel-session-desc{padding:6px 10px;background:#f9fafb;border-top:1px solid var(--border);font-size:9px;color:var(--text-muted);font-style:italic;}
+  .register-btn{display:inline-block;padding:6px 12px;margin-top:8px;background:linear-gradient(135deg,var(--primary),#6366f1);color:#fff;border:none;border-radius:5px;font-size:9px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;}
+  .register-btn:hover{background:linear-gradient(135deg,#4f46e5,#4f46e5);box-shadow:0 4px 12px rgba(79,70,229,.3);transform:translateY(-1px);}
+  .register-btn:active{transform:translateY(0);}
   .panel-empty{text-align:center;padding:30px 16px;color:var(--text-muted);}
   .panel-empty .pe-icon{font-size:24px;margin-bottom:5px;}
   .panel-empty .pe-text{font-size:10px;}
@@ -183,7 +186,9 @@
       <label>🌐 Your timezone:</label>
       <select id="tzSelector" onchange="render()">
         <option value="-8">🇺🇸 Pacific UTC−8</option>
+        <option value="-6">🇲🇽 Mexico UTC−6</option>
         <option value="-5">🇺🇸 Eastern UTC−5</option>
+        <option value="-3">🇧🇷 Brazil UTC−3</option>
         <option value="0" selected>🇬🇧 GMT</option>
         <option value="1">🇪🇺 CET UTC+1</option>
         <option value="2">🇿🇦 SAST UTC+2</option>
@@ -262,7 +267,7 @@
 const CSV_URL = 'https://raw.githubusercontent.com/EmmaK-ID-5/Dashboard/main/Training%20Schedule.csv';
 
 // ===== TIMEZONE =====
-const TZM={'-8':{a:'PT'},'-5':{a:'ET'},'0':{a:'GMT'},'1':{a:'CET'},'2':{a:'SAST'},'5.5':{a:'IST'},'7':{a:'WIB'},'7.01':{a:'ICT'},'8':{a:'CST'},'10':{a:'AEST'}};
+const TZM={'-8':{a:'PT'},'-6':{a:'CST'},'-5':{a:'ET'},'-3':{a:'BRT'},'0':{a:'GMT'},'1':{a:'CET'},'2':{a:'SAST'},'5.5':{a:'IST'},'7':{a:'WIB'},'7.01':{a:'ICT'},'8':{a:'CST'},'10':{a:'AEST'}};
 function gOff(){return parseFloat(document.getElementById('tzSelector').value);}
 function gAbbr(){return TZM[document.getElementById('tzSelector').value]?.a||'GMT';}
 function cvt(g){if(!g)return{time:'',ds:0};const o=gOff(),[h,m]=g.split(':').map(Number);let t=h*60+m+Math.round(o*60),d=0;if(t<0){t+=1440;d=-1;}if(t>=1440){t-=1440;d=1;}return{time:`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`,ds:d};}
@@ -346,7 +351,7 @@ async function loadCSV(){
     
     function findCol(name){if(colMap[name]!==undefined)return colMap[name];const lc=name.toLowerCase();for(const[k,v]of Object.entries(colMap)){if(k.toLowerCase()===lc)return v;}return undefined;}
     
-    const C={date:findCol('SessionDate'),title:findCol('SessionTitle'),gmt:findCol('StartTimeGMT'),cat:findCol('SessionCategory'),type:findCol('SessionType'),ws:findCol('Workstream'),trainer:findCol('TrainerName'),regions:findCol('TargetRegions'),lang:findCol('Language'),status:findCol('Status'),flag:findCol('EventFlag'),flagDetail:findCol('FlagDetail'),desc:findCol('Description')};
+    const C={date:findCol('SessionDate'),title:findCol('SessionTitle'),gmt:findCol('StartTimeGMT'),cat:findCol('SessionCategory'),type:findCol('SessionType'),ws:findCol('Workstream'),trainer:findCol('TrainerName'),regions:findCol('TargetRegions'),lang:findCol('Language'),status:findCol('Status'),flag:findCol('EventFlag'),flagDetail:findCol('FlagDetail'),desc:findCol('Description'),link:findCol('Link')};
     
     console.log('Column mapping:',C);
     
@@ -363,7 +368,7 @@ async function loadCSV(){
       const date=normalizeDate(get(C.date));
       if(!date){skipped++;continue;}
       const title=get(C.title),flag=get(C.flag)||'Training Session';
-      newData.push({date,gmt:get(C.gmt),title:title||get(C.flagDetail)||'',cat:get(C.cat),type:get(C.type),ws:get(C.ws)||'Tech L&D',trainer:get(C.trainer)||'Unknown',regions:(get(C.regions)||'').split(';').map(r=>r.trim()).filter(r=>r),lang:get(C.lang)||'English',status:get(C.status)||'Scheduled',flag,flagDetail:get(C.flagDetail),desc:get(C.desc)});
+      newData.push({date,gmt:get(C.gmt),title:title||get(C.flagDetail)||'',cat:get(C.cat),type:get(C.type),ws:get(C.ws)||'Tech L&D',trainer:get(C.trainer)||'Unknown',regions:(get(C.regions)||'').split(';').map(r=>r.trim()).filter(r=>r),lang:get(C.lang)||'English',status:get(C.status)||'Scheduled',flag,flagDetail:get(C.flagDetail),desc:get(C.desc),link:get(C.link)});
     }
     
     console.log('Rows parsed:',newData.length,'Rows skipped:',skipped);
@@ -507,7 +512,8 @@ function renderP(ds){
   hols.forEach(ho=>{h+=`<div class="panel-holiday-banner"><div class="ph-icon">🔴</div><div class="ph-text">${ho.title||ho.flagDetail}</div><div class="ph-regions">${ho.regions.map(r=>RL[r]||r).join(' · ')}</div></div>`;});
   if(hols.length&&ss.length)h+='<div class="panel-divider"></div>';
   ss.forEach(s=>{const cT=s.cat?`<span class="cat-tag ${catC(s.cat)}">${s.cat}</span>`:'';const lT=s.lang?`<span class="lang-tag">${LF[s.lang]||''} ${s.lang}</span>`:'';
-    h+=`<div class="panel-session"><div class="panel-session-header ${wsC(s.ws,s.flag)}"><div><div class="panel-session-title">${s.title}</div><div class="panel-session-type">${s.type} · <span class="ws-tag ${wsTC(s.ws)}">${s.ws}</span> ${cT} ${lT}</div></div><div class="panel-session-time">${s.gmt?fmt(s.gmt):''}<br><span class="tz-label">${tz}</span></div></div><div class="panel-session-body"><div class="detail-row"><span class="detail-label">Trainer</span><span class="detail-value">${s.trainer}</span></div><div class="detail-row"><span class="detail-label">Regions</span><span class="detail-value">${s.regions.map(r=>RL[r]||r).join(', ')}</span></div><div class="detail-row"><span class="detail-label">Language</span><span class="detail-value">${LF[s.lang]||''} ${s.lang||'—'}</span></div><div class="detail-row"><span class="detail-label">GMT</span><span class="detail-value">${s.gmt||'TBC'} GMT</span></div><div class="detail-row"><span class="detail-label">Local</span><span class="detail-value">${fmtP(s.gmt)} ${tz}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${s.status}</span></div></div><div class="panel-session-desc">📝 ${s.desc||'Description to be added.'}</div></div>`;});
+    const regBtn=s.link?`<a href="${s.link}" target="_blank" class="register-btn">📝 Register Now</a>`:'';
+    h+=`<div class="panel-session"><div class="panel-session-header ${wsC(s.ws,s.flag)}"><div><div class="panel-session-title">${s.title}</div><div class="panel-session-type">${s.type} · <span class="ws-tag ${wsTC(s.ws)}">${s.ws}</span> ${cT} ${lT}</div></div><div class="panel-session-time">${s.gmt?fmt(s.gmt):''}<br><span class="tz-label">${tz}</span></div></div><div class="panel-session-body"><div class="detail-row"><span class="detail-label">Trainer</span><span class="detail-value">${s.trainer}</span></div><div class="detail-row"><span class="detail-label">Regions</span><span class="detail-value">${s.regions.map(r=>RL[r]||r).join(', ')}</span></div><div class="detail-row"><span class="detail-label">Language</span><span class="detail-value">${LF[s.lang]||''} ${s.lang||'—'}</span></div><div class="detail-row"><span class="detail-label">GMT</span><span class="detail-value">${s.gmt||'TBC'} GMT</span></div><div class="detail-row"><span class="detail-label">Local</span><span class="detail-value">${fmtP(s.gmt)} ${tz}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${s.status}</span></div>${regBtn}</div><div class="panel-session-desc">📝 ${s.desc||'Description to be added.'}</div></div>`;});
   body.innerHTML=h;
 }
 
