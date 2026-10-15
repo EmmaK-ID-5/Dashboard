@@ -1,524 +1,2202 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Training Schedule Dashboard</title>
-<style>
-  :root{--bg:#f4f5f7;--card:#fff;--border:#e1e4e8;--text:#1a1a2e;--text-muted:#6b7280;--primary:#4f46e5;--tech-ld:#3b82f6;--pencil:#10b981;--ld:#f59e0b;--holiday:#ef4444;--webinar:#ec4899;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);--radius:8px;}
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
-  .topbar{background:#1e1b4b;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-  .topbar h1{font-size:16px;font-weight:600;}
-  .topbar .subtitle{font-size:10px;color:#a5b4fc;}
-  .top-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-  .tz-wrap{display:flex;align-items:center;gap:6px;}
-  .tz-wrap label{font-size:10px;color:#c7d2fe;}
-  .tz-wrap select{padding:3px 6px;border-radius:5px;border:1px solid #6366f1;background:#312e81;color:#e0e7ff;font-size:10px;cursor:pointer;}
-  .data-status{font-size:9px;color:#a5b4fc;display:flex;align-items:center;gap:4px;}
-  .data-status .dot{width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;}
-  .data-status .dot.error{background:#ef4444;}
-  .data-status .dot.loading{background:#f59e0b;animation:pulse 1s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-  .error-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:20px;color:#991b1b;}
-  .error-banner h3{margin:0 0 8px;font-size:14px;font-weight:600;}
-  .error-banner p{margin:4px 0;font-size:12px;line-height:1.5;}
-  .container{display:grid;grid-template-columns:210px 1fr;height:calc(100vh - 46px);}
-  .sidebar{background:var(--card);border-right:1px solid var(--border);padding:10px;overflow-y:auto;}
-  .sidebar h3{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:9px 0 3px 0;}
-  .sidebar h3:first-child{margin-top:0;}
-  .filter-group label{display:flex;align-items:center;gap:4px;padding:1.5px 0;font-size:10.5px;cursor:pointer;}
-  .filter-group input[type="checkbox"]{accent-color:var(--primary);width:11px;height:11px;}
-  .sidebar select{width:100%;padding:4px 5px;border:1px solid var(--border);border-radius:4px;font-size:10.5px;margin-top:2px;background:#fff;}
-  .sidebar-divider{height:1px;background:var(--border);margin:8px 0;}
-  .badge{display:inline-block;width:7px;height:7px;border-radius:2px;}
-  .badge.tech-ld{background:var(--tech-ld);}.badge.pencil{background:var(--pencil);}.badge.ld{background:var(--ld);}
-  .main{padding:10px 14px;overflow-y:auto;display:flex;flex-direction:column;position:relative;}
-  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px;}
-  .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;box-shadow:var(--shadow);}
-  .kpi-card .kpi-label{font-size:7px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);}
-  .kpi-card .kpi-value{font-size:18px;font-weight:700;margin-top:1px;}
-  .kpi-card .kpi-sub{font-size:8px;color:var(--text-muted);}
-  .kpi-card.blue .kpi-value{color:var(--tech-ld);}
-  .kpi-card.green .kpi-value{color:var(--pencil);}
-  .kpi-card.pink .kpi-value{color:var(--webinar);}
-  .kpi-card.amber .kpi-value{color:var(--ld);}
-  .kpi-card.red .kpi-value{color:var(--holiday);}
-  .view-controls{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
-  .view-btn{padding:4px 11px;border:1px solid var(--border);border-radius:5px;background:var(--card);font-size:10px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:3px;transition:all .15s;}
-  .view-btn:hover{background:#f3f4f6;}
-  .view-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
-  .print-btn{padding:4px 11px;border:1px solid var(--border);border-radius:5px;background:var(--card);font-size:10px;cursor:pointer;font-weight:500;display:none;align-items:center;gap:3px;}
-  .print-btn:hover{background:#f3f4f6;}
-  .print-btn.show{display:flex;}
-  .month-nav{display:flex;align-items:center;gap:5px;margin-left:auto;}
-  .month-nav button{padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:var(--card);cursor:pointer;font-size:12px;}
-  .month-nav button:hover{background:#f3f4f6;}
-  .month-nav span{font-size:12px;font-weight:700;min-width:150px;text-align:center;}
-  .info-badge{font-size:8px;padding:2px 6px;border-radius:10px;font-weight:600;}
-  .tz-badge{background:#eef2ff;color:var(--primary);}
-  .region-badge{background:#ecfdf5;color:#065f46;}
-  .lang-badge{background:#fef3c7;color:#92400e;}
-  .month-calendar{flex:1;display:none;flex-direction:column;min-height:0;}
-  .month-calendar.active{display:flex;}
-  .month-header-row{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:3px;}
-  .month-header-cell{text-align:center;font-size:8px;font-weight:700;text-transform:uppercase;color:var(--text-muted);padding:2px 0;}
-  .month-grid{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;min-height:0;}
-  .month-day{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;min-height:0;cursor:pointer;transition:box-shadow .15s,border-color .15s;}
-  .month-day:hover{box-shadow:0 2px 8px rgba(79,70,229,.15);border-color:#a5b4fc;}
-  .month-day.outside{background:#fafafa;opacity:.3;pointer-events:none;}
-  .month-day.today{border-color:var(--primary);border-width:2px;}
-  .month-day.selected{border-color:var(--primary);border-width:2px;box-shadow:0 0 0 3px rgba(79,70,229,.12);}
-  .month-day-hdr{padding:2px 5px;font-size:8px;font-weight:600;border-bottom:1px solid var(--border);background:#f9fafb;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
-  .month-day-hdr .date-num{font-size:10px;}
-  .month-day-hdr .session-count{font-size:7px;background:#e2e8f0;padding:1px 4px;border-radius:8px;color:#475569;}
-  .month-day-body{flex:1;overflow-y:auto;padding:1px 2px;}
-  .m-event{padding:1px 3px;margin-bottom:1px;border-radius:2px;font-size:8.5px;line-height:1.2;border-left:2px solid;pointer-events:none;}
-  .m-event.ws-tech-ld{border-left-color:var(--tech-ld);background:#eff6ff;}
-  .m-event.ws-pencil{border-left-color:var(--pencil);background:#ecfdf5;}
-  .m-event.ws-ld{border-left-color:var(--ld);background:#fffbeb;}
-  .m-event.ws-holiday{border-left-color:var(--holiday);background:#fef2f2;color:var(--holiday);font-weight:600;}
-  .m-event .ev-time{font-weight:700;font-size:7.5px;}
-  .m-event .ev-meta{color:var(--text-muted);font-size:7px;}
-  .m-event .day-shift{font-size:6px;color:#ef4444;font-weight:700;vertical-align:super;}
-  .list-view{display:none;flex:1;overflow-y:auto;}
-  .list-view.active{display:block;}
-  .list-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
-  .list-table thead{background:#f9fafb;position:sticky;top:0;z-index:2;}
-  .list-table th{padding:5px 6px;font-size:7px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);text-align:left;border-bottom:1px solid var(--border);}
-  .list-table td{padding:4px 6px;font-size:10px;border-bottom:1px solid var(--border);}
-  .list-table tr{cursor:pointer;}
-  .list-table tr:hover{background:#eef2ff;}
-  .ws-tag{padding:1px 4px;border-radius:8px;font-size:7px;font-weight:600;white-space:nowrap;}
-  .ws-tag.tech-ld{background:#dbeafe;color:#1d4ed8;}
-  .ws-tag.pencil{background:#d1fae5;color:#065f46;}
-  .ws-tag.ld{background:#fef3c7;color:#92400e;}
-  .cat-tag{padding:1px 4px;border-radius:8px;font-size:7px;font-weight:600;white-space:nowrap;}
-  .cat-tag.c-pencil{background:#d1fae5;color:#065f46;}
-  .cat-tag.c-genai{background:#dbeafe;color:#1d4ed8;}
-  .cat-tag.c-core{background:#fef3c7;color:#92400e;}
-  .cat-tag.c-webinar{background:#fce7f3;color:#be185d;}
-  .lang-tag{padding:1px 4px;border-radius:8px;font-size:7px;font-weight:500;background:#f5f3ff;color:#6d28d9;}
-  .flag-tag{padding:1px 4px;border-radius:3px;font-size:6px;font-weight:600;}
-  .flag-tag.holiday{background:#fee2e2;color:#dc2626;}
-  .region-pills{display:flex;flex-wrap:wrap;gap:1px;}
-  .region-pill{padding:1px 3px;border-radius:2px;font-size:6.5px;background:#f1f5f9;color:#475569;}
-  .panel-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.2);z-index:500;display:none;}
-  .panel-overlay.open{display:block;}
-  .detail-panel{position:fixed;top:0;right:-420px;width:400px;height:100vh;background:var(--card);border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.1);z-index:501;transition:right .3s ease;display:flex;flex-direction:column;}
-  .detail-panel.open{right:0;}
-  .panel-header{padding:12px 16px;background:#1e1b4b;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-  .panel-header h2{font-size:13px;font-weight:600;}
-  .panel-header .panel-date-sub{font-size:9px;color:#a5b4fc;margin-top:1px;}
-  .panel-close{background:none;border:1px solid rgba(255,255,255,.2);color:#fff;font-size:14px;cursor:pointer;width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
-  .panel-close:hover{background:rgba(255,255,255,.1);}
-  .panel-body{flex:1;overflow-y:auto;padding:12px 16px;}
-  .panel-summary{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
-  .panel-stat{background:#f9fafb;border:1px solid var(--border);border-radius:5px;padding:6px 8px;flex:1;min-width:60px;text-align:center;}
-  .panel-stat .ps-val{font-size:15px;font-weight:700;color:var(--primary);}
-  .panel-stat .ps-label{font-size:7px;text-transform:uppercase;color:var(--text-muted);}
-  .panel-divider{height:1px;background:var(--border);margin:8px 0;}
-  .panel-session{border:1px solid var(--border);border-radius:5px;margin-bottom:7px;overflow:hidden;}
-  .panel-session-header{padding:8px 10px;border-left:3px solid;display:flex;justify-content:space-between;align-items:flex-start;}
-  .panel-session-header.ws-tech-ld{border-left-color:var(--tech-ld);background:#f8faff;}
-  .panel-session-header.ws-pencil{border-left-color:var(--pencil);background:#f0fdf9;}
-  .panel-session-header.ws-ld{border-left-color:var(--ld);background:#fffcf0;}
-  .panel-session-header.ws-holiday{border-left-color:var(--holiday);background:#fef8f8;}
-  .panel-session-title{font-size:11px;font-weight:600;}
-  .panel-session-type{font-size:8px;color:var(--text-muted);margin-top:1px;display:flex;align-items:center;gap:3px;flex-wrap:wrap;}
-  .panel-session-time{font-size:11px;font-weight:700;color:var(--primary);text-align:right;white-space:nowrap;}
-  .panel-session-time .tz-label{font-size:7px;color:var(--text-muted);font-weight:400;}
-  .panel-session-body{padding:6px 10px;background:#fff;}
-  .panel-session-body .detail-row{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:9.5px;}
-  .panel-session-body .detail-label{font-size:7px;text-transform:uppercase;color:var(--text-muted);width:58px;flex-shrink:0;}
-  .panel-session-desc{padding:6px 10px;background:#f9fafb;border-top:1px solid var(--border);font-size:9px;color:var(--text-muted);font-style:italic;}
-  .register-btn{display:inline-block;padding:6px 12px;margin-top:8px;background:linear-gradient(135deg,var(--primary),#6366f1);color:#fff;border:none;border-radius:5px;font-size:9px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;}
-  .register-btn:hover{background:linear-gradient(135deg,#4f46e5,#4f46e5);box-shadow:0 4px 12px rgba(79,70,229,.3);transform:translateY(-1px);}
-  .register-btn:active{transform:translateY(0);}
-  .panel-empty{text-align:center;padding:30px 16px;color:var(--text-muted);}
-  .panel-empty .pe-icon{font-size:24px;margin-bottom:5px;}
-  .panel-empty .pe-text{font-size:10px;}
-  .panel-holiday-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:5px;padding:8px 12px;text-align:center;margin-bottom:7px;}
-  .panel-holiday-banner .ph-icon{font-size:18px;}
-  .panel-holiday-banner .ph-text{font-size:11px;font-weight:600;color:var(--holiday);margin-top:2px;}
-  .panel-holiday-banner .ph-regions{font-size:8px;color:var(--text-muted);margin-top:1px;}
-  .loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.9);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
-  .loading-overlay.hidden{display:none;}
-  .loading-spinner{width:40px;height:40px;border:4px solid #e1e4e8;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .loading-text{font-size:14px;color:var(--text-muted);}
-  .month-day-body::-webkit-scrollbar,.sidebar::-webkit-scrollbar,.panel-body::-webkit-scrollbar{width:2px;}
-  .month-day-body::-webkit-scrollbar-thumb,.sidebar::-webkit-scrollbar-thumb,.panel-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px;}
-  @media(max-width:1100px){.container{grid-template-columns:1fr;}.sidebar{border-right:none;border-bottom:1px solid var(--border);max-height:160px;}.detail-panel{width:100%;right:-100%;}}
-  @media print{
-    body{overflow:visible!important;background:#fff;}
-    .topbar,.sidebar,.panel-overlay,.detail-panel,.month-calendar,.view-controls,.kpi-row,.loading-overlay,.error-banner{display:none!important;}
-    .container{display:block!important;height:auto!important;}
-    .main{padding:0!important;overflow:visible!important;}
-    .list-view{display:block!important;overflow:visible!important;}
-    .print-header{display:block!important;margin-bottom:10px;}
-    .print-header h2{font-size:14px;margin-bottom:2px;}
-    .print-header p{font-size:9px;color:#555;}
-    .list-table{box-shadow:none!important;border:1px solid #ccc;}
-    .list-table th{font-size:6px;padding:3px 4px;background:#f0f0f0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .list-table td{font-size:8px;padding:2px 4px;}
-    .ws-tag,.cat-tag,.lang-tag,.flag-tag,.region-pill{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    @page{size:landscape;margin:8mm;}
-  }
-  .print-header{display:none;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OLIVER Training Schedule</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --color-yellow: #FFC407;
+      --color-black: #000000;
+      --color-white: #FFFFFF;
+      --color-yellow-dim: rgba(255, 196, 7, 0.15);
+      --color-yellow-faint: rgba(255, 196, 7, 0.08);
+      --color-black-soft: rgba(0, 0, 0, 0.55);
+      --color-black-muted: rgba(0, 0, 0, 0.35);
+      --color-black-faint: rgba(0, 0, 0, 0.08);
+      --color-black-border: rgba(0, 0, 0, 0.12);
+      --color-white-soft: rgba(255, 255, 255, 0.75);
+      --color-white-muted: rgba(255, 255, 255, 0.45);
+      --color-white-border: rgba(255, 255, 255, 0.15);
+
+      --font-family: 'Montserrat', sans-serif;
+      --font-display: clamp(2.5rem, 6vw, 4rem);
+      --font-h1: clamp(1.8rem, 4vw, 2.8rem);
+      --font-h2: 1.5rem;
+      --font-h3: 1.15rem;
+      --font-body: 0.9rem;
+      --font-label: 0.72rem;
+      --font-caption: 0.65rem;
+
+      --space-xs: 6px;
+      --space-sm: 12px;
+      --space-md: 20px;
+      --space-lg: 32px;
+      --space-xl: 48px;
+      --space-2xl: 80px;
+
+      --radius-sm: 3px;
+      --radius-md: 8px;
+      --radius-lg: 14px;
+      --radius-pill: 999px;
+      --radius-circle: 50%;
+
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background-color: var(--color-white);
+      color: var(--color-black);
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    button,
+    select,
+    input {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--color-yellow);
+      outline-offset: 2px;
+    }
+
+    .topbar {
+      min-height: 74px;
+      padding: var(--space-sm) var(--space-lg);
+      background: var(--color-black);
+      color: var(--color-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .brand-mark {
+      min-width: 68px;
+      height: 34px;
+      padding: 0 var(--space-sm);
+      border-radius: var(--radius-sm);
+      background: var(--color-yellow);
+      color: var(--color-black);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .topbar h1 {
+      color: var(--color-white);
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .topbar h1 span {
+      color: var(--color-yellow);
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      color: var(--color-white-soft);
+      font-size: var(--font-caption);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .tz-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .tz-wrap label,
+    .data-status {
+      color: var(--color-white-soft);
+      font-size: var(--font-caption);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .tz-wrap select {
+      padding: 6px 9px;
+      border: 1px solid var(--color-yellow);
+      border-radius: var(--radius-sm);
+      background: var(--color-black);
+      color: var(--color-white);
+      font-size: var(--font-caption);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .data-status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .data-status .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: var(--radius-circle);
+      background: var(--color-yellow);
+      display: inline-block;
+    }
+
+    .data-status .dot.error {
+      background: var(--color-white);
+      border: 2px solid var(--color-yellow);
+    }
+
+    .data-status .dot.loading {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    .error-banner {
+      margin: var(--space-md);
+      padding: var(--space-md);
+      border: 2px solid var(--color-black);
+      border-left: 8px solid var(--color-yellow);
+      border-radius: var(--radius-md);
+      background: var(--color-white);
+      color: var(--color-black);
+      box-shadow: var(--shadow);
+    }
+
+    .error-banner h3 {
+      margin-bottom: var(--space-xs);
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .error-banner p {
+      font-size: 0.75rem;
+      font-weight: 400;
+    }
+
+    .container {
+      height: calc(100vh - 74px);
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      padding: var(--space-md);
+      overflow-y: auto;
+      border-right: 1px solid var(--color-white-border);
+      background: var(--color-black);
+      color: var(--color-white);
+    }
+
+    .sidebar h3 {
+      margin: var(--space-md) 0 var(--space-xs);
+      color: var(--color-yellow);
+      font-size: var(--font-caption);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .sidebar h3:first-child {
+      margin-top: 0;
+    }
+
+    .sidebar select {
+      width: 100%;
+      padding: 8px 9px;
+      border: 1px solid var(--color-white-muted);
+      border-radius: var(--radius-sm);
+      background: var(--color-black);
+      color: var(--color-white);
+      font-size: var(--font-caption);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .filter-group label {
+      padding: 4px 0;
+      color: var(--color-white);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: var(--font-caption);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .filter-group input[type="checkbox"] {
+      width: 13px;
+      height: 13px;
+      accent-color: var(--color-yellow);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      margin: var(--space-md) 0;
+      background: var(--color-white-border);
+    }
+
+    .badge {
+      width: 9px;
+      height: 9px;
+      border: 1px solid var(--color-yellow);
+      border-radius: var(--radius-circle);
+      background: var(--color-yellow);
+      display: inline-block;
+    }
+
+    .main {
+      min-width: 0;
+      padding: var(--space-md);
+      overflow-y: auto;
+      background: var(--color-white);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .kpi-row {
+      margin-bottom: var(--space-md);
+      display: grid;
+      grid-template-columns: repeat(5, minmax(110px, 1fr));
+      gap: var(--space-sm);
+    }
+
+    .kpi-card {
+      min-width: 0;
+      padding: var(--space-sm);
+      border: 1px solid var(--color-black);
+      border-top: 5px solid var(--color-yellow);
+      border-radius: var(--radius-md);
+      background: var(--color-white);
+      color: var(--color-black);
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-label {
+      min-height: 26px;
+      color: var(--color-black-soft);
+      font-size: 0.59rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      margin-top: 2px;
+      color: var(--color-black);
+      font-size: 1.4rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .kpi-sub {
+      color: var(--color-black-soft);
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .view-controls {
+      margin-bottom: var(--space-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+    }
+
+    .view-btn,
+    .print-btn,
+    .month-nav button {
+      min-height: 30px;
+      padding: 6px 12px;
+      border: 2px solid var(--color-black);
+      border-radius: var(--radius-sm);
+      background: var(--color-white);
+      color: var(--color-black);
+      font-size: var(--font-caption);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .view-btn:hover,
+    .print-btn:hover,
+    .month-nav button:hover {
+      background: var(--color-yellow);
+      color: var(--color-black);
+    }
+
+    .view-btn.active {
+      border-color: var(--color-yellow);
+      background: var(--color-yellow);
+      color: var(--color-black);
+    }
+
+    .print-btn {
+      display: none;
+    }
+
+    .print-btn.show {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .info-badge {
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--color-black);
+      color: var(--color-yellow);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .month-nav {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .month-nav span {
+      min-width: 170px;
+      color: var(--color-black);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .month-calendar {
+      min-height: 0;
+      flex: 1;
+      display: none;
+      flex-direction: column;
+    }
+
+    .month-calendar.active {
+      display: flex;
+    }
+
+    .month-header-row {
+      margin-bottom: 4px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+
+    .month-header-cell {
+      padding: 4px 0;
+      background: var(--color-black);
+      color: var(--color-yellow);
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .month-grid {
+      min-height: 0;
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .month-day {
+      min-height: 0;
+      overflow: hidden;
+      border: 1px solid var(--color-black-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-white);
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .month-day:hover {
+      border-color: var(--color-black);
+      box-shadow: var(--shadow);
+    }
+
+    .month-day.outside {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .month-day.today,
+    .month-day.selected {
+      border: 3px solid var(--color-yellow);
+    }
+
+    .month-day.selected {
+      box-shadow: 0 0 0 3px var(--color-yellow-dim);
+    }
+
+    .month-day-hdr {
+      min-height: 24px;
+      padding: 3px 6px;
+      border-bottom: 1px solid var(--color-black-border);
+      background: var(--color-black-faint);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .date-num {
+      font-size: 0.66rem;
+      font-weight: 800;
+    }
+
+    .session-count {
+      min-width: 18px;
+      padding: 1px 5px;
+      border-radius: var(--radius-pill);
+      background: var(--color-yellow);
+      color: var(--color-black);
+      font-size: 0.54rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .month-day-body {
+      padding: 3px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .m-event {
+      margin-bottom: 2px;
+      padding: 3px 4px;
+      border-left: 4px solid var(--color-yellow);
+      border-radius: var(--radius-sm);
+      background: var(--color-yellow-faint);
+      color: var(--color-black);
+      font-size: 0.55rem;
+      font-weight: 500;
+      line-height: 1.25;
+      pointer-events: none;
+    }
+
+    .m-event.ws-holiday {
+      border-left-color: var(--color-black);
+      background: var(--color-black);
+      color: var(--color-white);
+    }
+
+    .ev-time {
+      font-size: 0.51rem;
+      font-weight: 800;
+    }
+
+    .ev-meta {
+      margin-top: 1px;
+      color: var(--color-black-soft);
+      font-size: 0.48rem;
+      font-weight: 500;
+    }
+
+    .ws-holiday .ev-meta {
+      color: var(--color-white-soft);
+    }
+
+    .day-shift {
+      color: var(--color-black);
+      font-size: 0.45rem;
+      font-weight: 800;
+      vertical-align: super;
+    }
+
+    .list-view {
+      display: none;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .list-view.active {
+      display: block;
+    }
+
+    .list-table {
+      width: 100%;
+      overflow: hidden;
+      border: 1px solid var(--color-black);
+      border-collapse: collapse;
+      border-radius: var(--radius-md);
+      background: var(--color-white);
+      box-shadow: var(--shadow);
+    }
+
+    .list-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--color-black);
+    }
+
+    .list-table th {
+      padding: 8px 7px;
+      border-bottom: 1px solid var(--color-black);
+      color: var(--color-yellow);
+      font-size: 0.51rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    .list-table td {
+      padding: 7px;
+      border-bottom: 1px solid var(--color-black-border);
+      color: var(--color-black);
+      font-size: 0.61rem;
+      font-weight: 400;
+      vertical-align: top;
+    }
+
+    .list-table tbody tr {
+      cursor: pointer;
+    }
+
+    .list-table tbody tr:hover {
+      background: var(--color-yellow-faint);
+    }
+
+    .ws-tag,
+    .cat-tag,
+    .lang-tag,
+    .flag-tag,
+    .region-pill {
+      display: inline-block;
+      padding: 2px 5px;
+      border-radius: var(--radius-sm);
+      font-size: 0.49rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      line-height: 1.35;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .ws-tag,
+    .cat-tag,
+    .lang-tag,
+    .region-pill {
+      border: 1px solid var(--color-black);
+      background: var(--color-white);
+      color: var(--color-black);
+    }
+
+    .flag-tag {
+      background: var(--color-yellow);
+      color: var(--color-black);
+    }
+
+    .region-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+
+    .panel-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: none;
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .panel-overlay.open {
+      display: block;
+    }
+
+    .detail-panel {
+      width: 400px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      right: -420px;
+      z-index: 501;
+      border-left: 4px solid var(--color-yellow);
+      background: var(--color-white);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s ease;
+    }
+
+    .detail-panel.open {
+      right: 0;
+    }
+
+    .panel-header {
+      padding: var(--space-md);
+      background: var(--color-black);
+      color: var(--color-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .panel-header h2 {
+      color: var(--color-white);
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .panel-date-sub {
+      margin-top: 2px;
+      color: var(--color-white-soft);
+      font-size: var(--font-caption);
+      font-weight: 500;
+    }
+
+    .panel-close {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--color-yellow);
+      border-radius: var(--radius-sm);
+      background: var(--color-black);
+      color: var(--color-yellow);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .panel-close:hover {
+      background: var(--color-yellow);
+      color: var(--color-black);
+    }
+
+    .panel-body {
+      padding: var(--space-md);
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .panel-summary {
+      margin-bottom: var(--space-sm);
+      display: flex;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+    }
+
+    .panel-stat {
+      min-width: 80px;
+      padding: 8px;
+      border: 1px solid var(--color-black);
+      border-top: 4px solid var(--color-yellow);
+      border-radius: var(--radius-sm);
+      background: var(--color-white);
+      text-align: center;
+      flex: 1;
+    }
+
+    .ps-val {
+      color: var(--color-black);
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .ps-label {
+      color: var(--color-black-soft);
+      font-size: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .panel-divider {
+      height: 1px;
+      margin: var(--space-sm) 0;
+      background: var(--color-black-border);
+    }
+
+    .panel-session {
+      margin-bottom: var(--space-sm);
+      overflow: hidden;
+      border: 1px solid var(--color-black);
+      border-radius: var(--radius-md);
+    }
+
+    .panel-session-header {
+      padding: 10px;
+      border-left: 6px solid var(--color-yellow);
+      background: var(--color-yellow-faint);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+
+    .panel-session-header.ws-holiday {
+      border-left-color: var(--color-yellow);
+      background: var(--color-black);
+      color: var(--color-white);
+    }
+
+    .panel-session-title {
+      font-size: 0.69rem;
+      font-weight: 700;
+    }
+
+    .panel-session-type {
+      margin-top: 3px;
+      color: var(--color-black-soft);
+      font-size: 0.52rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+
+    .panel-session-time {
+      color: var(--color-black);
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .tz-label {
+      color: var(--color-black-soft);
+      font-size: 0.48rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .panel-session-body {
+      padding: 8px 10px;
+      background: var(--color-white);
+    }
+
+    .detail-row {
+      padding: 3px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-xs);
+      font-size: 0.6rem;
+    }
+
+    .detail-label {
+      width: 68px;
+      color: var(--color-black-soft);
+      flex-shrink: 0;
+      font-size: 0.49rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .panel-session-desc {
+      padding: 8px 10px;
+      border-top: 1px solid var(--color-black-border);
+      background: var(--color-black-faint);
+      color: var(--color-black-soft);
+      font-size: 0.56rem;
+      font-weight: 400;
+    }
+
+    .register-btn {
+      margin-top: 9px;
+      padding: 8px 12px;
+      border: 2px solid var(--color-yellow);
+      border-radius: var(--radius-sm);
+      background: var(--color-yellow);
+      color: var(--color-black);
+      display: inline-block;
+      font-size: 0.55rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .register-btn:hover {
+      border-color: var(--color-black);
+      background: var(--color-black);
+      color: var(--color-yellow);
+    }
+
+    .panel-empty {
+      padding: var(--space-xl) var(--space-md);
+      color: var(--color-black-soft);
+      text-align: center;
+    }
+
+    .pe-icon {
+      width: 42px;
+      height: 6px;
+      margin: 0 auto var(--space-sm);
+      border-radius: var(--radius-pill);
+      background: var(--color-yellow);
+    }
+
+    .pe-text {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .panel-holiday-banner {
+      margin-bottom: var(--space-sm);
+      padding: var(--space-sm);
+      border-radius: var(--radius-md);
+      background: var(--color-yellow);
+      color: var(--color-black);
+      text-align: center;
+    }
+
+    .ph-text {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .ph-regions {
+      margin-top: 2px;
+      font-size: 0.53rem;
+      font-weight: 600;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: var(--color-black);
+      color: var(--color-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+    }
+
+    .loading-overlay.hidden {
+      display: none;
+    }
+
+    .loading-spinner {
+      width: 44px;
+      height: 44px;
+      border: 5px solid var(--color-white-border);
+      border-top-color: var(--color-yellow);
+      border-radius: var(--radius-circle);
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: var(--color-white-soft);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .print-header {
+      display: none;
+    }
+
+    .month-day-body::-webkit-scrollbar,
+    .sidebar::-webkit-scrollbar,
+    .panel-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .month-day-body::-webkit-scrollbar-thumb,
+    .sidebar::-webkit-scrollbar-thumb,
+    .panel-body::-webkit-scrollbar-thumb {
+      border-radius: var(--radius-pill);
+      background: var(--color-yellow);
+    }
+
+    @media (max-width: 1100px) {
+      body {
+        overflow: auto;
+      }
+
+      .container {
+        height: auto;
+        min-height: calc(100vh - 74px);
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        max-height: none;
+        border-right: none;
+        border-bottom: 4px solid var(--color-yellow);
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0 var(--space-md);
+      }
+
+      .sidebar-divider {
+        display: none;
+      }
+
+      .main {
+        min-height: 720px;
+      }
+
+      .detail-panel {
+        width: 100%;
+        right: -100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topbar {
+        padding: var(--space-sm);
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .top-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .container {
+        min-height: calc(100vh - 120px);
+      }
+
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .month-nav {
+        width: 100%;
+        margin: var(--space-xs) 0 0;
+        justify-content: space-between;
+      }
+
+      .month-grid,
+      .month-header-row {
+        min-width: 700px;
+      }
+
+      .month-calendar {
+        overflow-x: auto;
+      }
+
+      .list-view {
+        overflow-x: auto;
+      }
+
+      .list-table {
+        min-width: 950px;
+      }
+    }
+
+    @media print {
+      body {
+        overflow: visible !important;
+        background: var(--color-white);
+      }
+
+      .topbar,
+      .sidebar,
+      .panel-overlay,
+      .detail-panel,
+      .month-calendar,
+      .view-controls,
+      .kpi-row,
+      .loading-overlay,
+      .error-banner {
+        display: none !important;
+      }
+
+      .container {
+        height: auto !important;
+        display: block !important;
+      }
+
+      .main {
+        padding: 0 !important;
+        overflow: visible !important;
+      }
+
+      .list-view {
+        display: block !important;
+        overflow: visible !important;
+      }
+
+      .print-header {
+        margin-bottom: 10px;
+        display: block !important;
+      }
+
+      .print-header h2 {
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .print-header p {
+        color: var(--color-black-soft);
+        font-size: 8px;
+      }
+
+      .list-table {
+        border: 1px solid var(--color-black);
+        box-shadow: none !important;
+      }
+
+      .list-table th {
+        padding: 3px 4px;
+        font-size: 6px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .list-table td {
+        padding: 2px 4px;
+        font-size: 7px;
+      }
+
+      .ws-tag,
+      .cat-tag,
+      .lang-tag,
+      .flag-tag,
+      .region-pill {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      @page {
+        size: landscape;
+        margin: 8mm;
+      }
+    }
+  </style>
 </head>
 <body>
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Loading training schedule…</div>
-</div>
-
-<div class="topbar">
-  <div>
-    <h1>📅 Training Schedule</h1>
-    <div class="subtitle">L&D · Tech L&D · Pencil — Live Training Calendar</div>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading training schedule</div>
   </div>
-  <div class="top-right">
-    <div class="data-status" id="dataStatus"><span class="dot loading"></span> Loading…</div>
-    <div class="tz-wrap">
-      <label>🌐 Your timezone:</label>
-      <select id="tzSelector" onchange="render()">
-        <option value="-8">🇺🇸 Pacific UTC−8</option>
-        <option value="-6">🇲🇽 Mexico UTC−6</option>
-        <option value="-5">🇺🇸 Eastern UTC−5</option>
-        <option value="-3">🇧🇷 Brazil UTC−3</option>
-        <option value="0" selected>🇬🇧 GMT</option>
-        <option value="1">🇪🇺 CET UTC+1</option>
-        <option value="2">🇿🇦 SAST UTC+2</option>
-        <option value="5.5">🇮🇳 IST UTC+5:30</option>
-        <option value="7">🇮🇩 WIB UTC+7</option>
-        <option value="7.01">🇻🇳 ICT UTC+7</option>
-        <option value="8">🇨🇳 CST UTC+8</option>
-        <option value="10">🇦🇺 AEST UTC+10</option>
-      </select>
-    </div>
-  </div>
-</div>
 
-<div id="errorContainer"></div>
-
-<div class="container">
-  <div class="sidebar">
-    <h3>Region</h3>
-    <select id="regionSelector" onchange="render()"><option value="All">🌐 All Regions</option></select>
-    <h3>Language</h3>
-    <select id="langSelector" onchange="render()"><option value="All">🗣️ All Languages</option></select>
-    <h3>Status</h3>
-    <select id="statusFilter" onchange="render()">
-      <option value="All">All Statuses</option><option value="Scheduled">Scheduled</option><option value="Completed">Completed</option><option value="Cancelled">Cancelled</option>
-    </select>
-    <div class="sidebar-divider"></div>
-    <h3>Workstream</h3>
-    <div class="filter-group" id="wsFilters"></div>
-    <h3>Category</h3>
-    <div class="filter-group" id="catFilters"></div>
-    <h3>Event Flags</h3>
-    <div class="filter-group" id="flagFilters"></div>
-  </div>
-  <div class="main">
-    <div class="kpi-row">
-      <div class="kpi-card blue"><div class="kpi-label">Sessions This Month</div><div class="kpi-value" id="kpiTotal">—</div><div class="kpi-sub">all workstreams</div></div>
-      <div class="kpi-card green"><div class="kpi-label">Pencil Sessions</div><div class="kpi-value" id="kpiPencil">—</div><div class="kpi-sub">platform</div></div>
-      <div class="kpi-card pink"><div class="kpi-label">Webinars</div><div class="kpi-value" id="kpiWebinars">—</div><div class="kpi-sub">this month</div></div>
-      <div class="kpi-card amber"><div class="kpi-label">Regions Active</div><div class="kpi-value" id="kpiRegions">—</div><div class="kpi-sub">covered</div></div>
-      <div class="kpi-card red"><div class="kpi-label">Public Holidays</div><div class="kpi-value" id="kpiAlerts">—</div><div class="kpi-sub">this month</div></div>
-    </div>
-    <div class="view-controls">
-      <button class="view-btn active" onclick="switchView('calendar',this)">📅 Month</button>
-      <button class="view-btn" onclick="switchView('list',this)">📋 List</button>
-      <button class="print-btn" id="printBtn" onclick="printList()">🖨️ Print</button>
-      <span class="info-badge tz-badge" id="tzBadge">GMT</span>
-      <span class="info-badge region-badge" id="regionBadge">All Regions</span>
-      <span class="info-badge lang-badge" id="langBadge">All Languages</span>
-      <div class="month-nav">
-        <button onclick="navMonth(-1)">◀</button>
-        <span id="monthLabel">—</span>
-        <button onclick="navMonth(1)">▶</button>
+  <header class="topbar">
+    <div class="brand-lockup">
+      <div class="brand-mark">OLIVER</div>
+      <div>
+        <h1>Training <span>Schedule</span></h1>
+        <div class="subtitle">L&amp;D and Tech L&amp;D live training calendar</div>
       </div>
     </div>
-    <div class="month-calendar active" id="calendarView">
-      <div class="month-header-row"><div class="month-header-cell">Mon</div><div class="month-header-cell">Tue</div><div class="month-header-cell">Wed</div><div class="month-header-cell">Thu</div><div class="month-header-cell">Fri</div></div>
-      <div class="month-grid" id="monthGrid"></div>
+
+    <div class="top-right">
+      <div class="data-status" id="dataStatus">
+        <span class="dot loading"></span>
+        Loading
+      </div>
+
+      <div class="tz-wrap">
+        <label for="tzSelector">Your timezone</label>
+        <select id="tzSelector" onchange="render()">
+          <option value="-8">Pacific UTC−8</option>
+          <option value="-6">Mexico UTC−6</option>
+          <option value="-5">Eastern UTC−5</option>
+          <option value="-3">Brazil UTC−3</option>
+          <option value="0" selected>GMT</option>
+          <option value="1">CET UTC+1</option>
+          <option value="2">SAST UTC+2</option>
+          <option value="5.5">IST UTC+5:30</option>
+          <option value="7">WIB UTC+7</option>
+          <option value="7.01">ICT UTC+7</option>
+          <option value="8">CST UTC+8</option>
+          <option value="10">AEST UTC+10</option>
+        </select>
+      </div>
     </div>
-    <div class="list-view" id="listView">
-      <div class="print-header"><h2 id="printTitle"></h2><p id="printMeta"></p></div>
-      <table class="list-table"><thead><tr><th>Date</th><th>Time</th><th>Session</th><th>Category</th><th>Language</th><th>Workstream</th><th>Trainer</th><th>Regions</th><th>Flag</th></tr></thead><tbody id="listBody"></tbody></table>
-    </div>
+  </header>
+
+  <div id="errorContainer"></div>
+
+  <div class="container">
+    <aside class="sidebar">
+      <div>
+        <h3>Region</h3>
+        <select id="regionSelector" onchange="render()">
+          <option value="All">All regions</option>
+        </select>
+      </div>
+
+      <div>
+        <h3>Language</h3>
+        <select id="langSelector" onchange="render()">
+          <option value="All">All languages</option>
+        </select>
+      </div>
+
+      <div>
+        <h3>Status</h3>
+        <select id="statusFilter" onchange="render()">
+          <option value="All">All statuses</option>
+          <option value="Scheduled">Scheduled</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div>
+        <h3>Workstream</h3>
+        <div class="filter-group" id="wsFilters"></div>
+      </div>
+
+      <div>
+        <h3>Category</h3>
+        <div class="filter-group" id="catFilters"></div>
+      </div>
+
+      <div>
+        <h3>Event flags</h3>
+        <div class="filter-group" id="flagFilters"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="kpi-row" aria-label="Monthly summary">
+        <div class="kpi-card">
+          <div class="kpi-label">Sessions this month</div>
+          <div class="kpi-value" id="kpiTotal">—</div>
+          <div class="kpi-sub">All workstreams</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Core Skills</div>
+          <div class="kpi-value" id="kpiCoreSkills">—</div>
+          <div class="kpi-sub">This month</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Webinars</div>
+          <div class="kpi-value" id="kpiWebinars">—</div>
+          <div class="kpi-sub">This month</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Regions active</div>
+          <div class="kpi-value" id="kpiRegions">—</div>
+          <div class="kpi-sub">Covered</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Public holidays</div>
+          <div class="kpi-value" id="kpiAlerts">—</div>
+          <div class="kpi-sub">This month</div>
+        </div>
+      </section>
+
+      <div class="view-controls">
+        <button class="view-btn active" onclick="switchView('calendar', this)">Month</button>
+        <button class="view-btn" onclick="switchView('list', this)">List</button>
+        <button class="print-btn" id="printBtn" onclick="printList()">Print</button>
+
+        <span class="info-badge" id="tzBadge">GMT</span>
+        <span class="info-badge" id="regionBadge">All regions</span>
+        <span class="info-badge" id="langBadge">All languages</span>
+
+        <div class="month-nav">
+          <button onclick="navMonth(-1)" aria-label="Previous month">Previous</button>
+          <span id="monthLabel">—</span>
+          <button onclick="navMonth(1)" aria-label="Next month">Next</button>
+        </div>
+      </div>
+
+      <section class="month-calendar active" id="calendarView">
+        <div class="month-header-row">
+          <div class="month-header-cell">Mon</div>
+          <div class="month-header-cell">Tue</div>
+          <div class="month-header-cell">Wed</div>
+          <div class="month-header-cell">Thu</div>
+          <div class="month-header-cell">Fri</div>
+        </div>
+        <div class="month-grid" id="monthGrid"></div>
+      </section>
+
+      <section class="list-view" id="listView">
+        <div class="print-header">
+          <h2 id="printTitle"></h2>
+          <p id="printMeta"></p>
+        </div>
+
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Session</th>
+              <th>Category</th>
+              <th>Language</th>
+              <th>Workstream</th>
+              <th>Trainer</th>
+              <th>Regions</th>
+              <th>Flag</th>
+            </tr>
+          </thead>
+          <tbody id="listBody"></tbody>
+        </table>
+      </section>
+    </main>
   </div>
-</div>
 
-<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
-<div class="detail-panel" id="detailPanel">
-  <div class="panel-header"><div><h2 id="panelTitle">—</h2><div class="panel-date-sub" id="panelDateSub">—</div></div><button class="panel-close" onclick="closePanel()">✕</button></div>
-  <div class="panel-body" id="panelBody"></div>
-</div>
+  <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
 
-<script>
-// ===== CONFIG =====
-const CSV_URL = 'https://raw.githubusercontent.com/EmmaK-ID-5/Dashboard/main/Training%20Schedule.csv';
-
-// ===== TIMEZONE =====
-const TZM={'-8':{a:'PT'},'-6':{a:'CST'},'-5':{a:'ET'},'-3':{a:'BRT'},'0':{a:'GMT'},'1':{a:'CET'},'2':{a:'SAST'},'5.5':{a:'IST'},'7':{a:'WIB'},'7.01':{a:'ICT'},'8':{a:'CST'},'10':{a:'AEST'}};
-function gOff(){return parseFloat(document.getElementById('tzSelector').value);}
-function gAbbr(){return TZM[document.getElementById('tzSelector').value]?.a||'GMT';}
-function cvt(g){if(!g)return{time:'',ds:0};const o=gOff(),[h,m]=g.split(':').map(Number);let t=h*60+m+Math.round(o*60),d=0;if(t<0){t+=1440;d=-1;}if(t>=1440){t-=1440;d=1;}return{time:`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`,ds:d};}
-function fmt(g){if(!g)return'TBC';const{time,ds}=cvt(g);return time+(ds===1?'<span class="day-shift">+1d</span>':ds===-1?'<span class="day-shift">−1d</span>':'');}
-function fmtP(g){if(!g)return'TBC';const{time,ds}=cvt(g);return time+(ds===1?' (+1d)':ds===-1?' (−1d)':'');}
-
-// ===== DATE UTILS (TIMEZONE-SAFE) - FIXED FOR DD/MM/YYYY =====
-function normalizeDate(raw){
-  if(!raw)return null;let s=raw.trim();
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
-  if(/^\d{4}\/\d{2}\/\d{2}$/.test(s))return s.replace(/\//g,'-');
-  
-  // Handle DD/MM/YYYY format (your CSV format)
-  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(m){
-    const day=parseInt(m[1]),month=parseInt(m[2]),year=parseInt(m[3]);
-    // If day > 12, it's definitely DD/MM format
-    if(day>12)return`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    // If month > 12, it's definitely MM/DD format
-    if(month>12)return`${year}-${String(day).padStart(2,'0')}-${String(month).padStart(2,'0')}`;
-    // Otherwise assume DD/MM (since your CSV appears to use this)
-    return`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-  }
-  const p=new Date(s);if(!isNaN(p))return`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,'0')}-${String(p.getUTCDate()).padStart(2,'0')}`;
-  return null;
-}
-function dateYear(d){return parseInt(d.substring(0,4));}
-function dateMonth(d){return parseInt(d.substring(5,7))-1;}
-function dateShort(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'});}
-function dateFull(d){const dt=new Date(d+'T12:00:00Z');return dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});}
-
-// ===== STATE =====
-let CY=2026,CM=0,selDate=null,curView='calendar';
-let DATA=[];
-const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const RL={'APAC':'🌏 APAC','EMEA':'🌍 EMEA','UK':'🇬🇧 UK','LATAM':'🌎 LATAM','NA-Eastern':'🇺🇸 NA East','NA-Pacific':'🇺🇸 NA Pacific'};
-const LF={'English':'🇬🇧','Brazilian Portuguese':'🇧🇷','Spanish':'🇪🇸'};
-
-// ===== ERROR DISPLAY =====
-function showError(title,message){
-  console.error(title,message);
-  const html=`
-    <div class="error-banner">
-      <h3>⚠️ ${title}</h3>
-      <p>${message}</p>
+  <aside class="detail-panel" id="detailPanel">
+    <div class="panel-header">
+      <div>
+        <h2 id="panelTitle">—</h2>
+        <div class="panel-date-sub" id="panelDateSub">—</div>
+      </div>
+      <button class="panel-close" onclick="closePanel()" aria-label="Close details">×</button>
     </div>
-  `;
-  document.getElementById('errorContainer').innerHTML=html;
-}
+    <div class="panel-body" id="panelBody"></div>
+  </aside>
 
-// ===== CSV LOADER =====
-async function loadCSV(){
-  try{
-    console.log('Fetching CSV from:',CSV_URL);
-    const resp=await fetch(CSV_URL);
-    console.log('Response status:',resp.status,resp.statusText);
-    
-    if(!resp.ok){
-      showError('Network Error',`HTTP ${resp.status}: ${resp.statusText}`);
-      setStatus('error',`HTTP ${resp.status}`);
-      return;
+  <script>
+    const CSV_URL = 'https://raw.githubusercontent.com/EmmaK-ID-5/Dashboard/main/Training%20Schedule.csv';
+
+    const TZM = {
+      '-8': { a: 'PT' },
+      '-6': { a: 'CST' },
+      '-5': { a: 'ET' },
+      '-3': { a: 'BRT' },
+      '0': { a: 'GMT' },
+      '1': { a: 'CET' },
+      '2': { a: 'SAST' },
+      '5.5': { a: 'IST' },
+      '7': { a: 'WIB' },
+      '7.01': { a: 'ICT' },
+      '8': { a: 'CST' },
+      '10': { a: 'AEST' }
+    };
+
+    function gOff() {
+      return parseFloat(document.getElementById('tzSelector').value);
     }
-    
-    let text=await resp.text();
-    console.log('CSV length:',text.length,'bytes');
-    
-    if(text.charCodeAt(0)===0xFEFF)text=text.substring(1);
-    const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
-    console.log('Total lines:',lines.length);
-    
-    if(lines.length<2){
-      showError('CSV Too Short',`Only ${lines.length} line(s) found. Need at least 2 (header + 1 data row).`);
-      setStatus('error','CSV too short');
-      return;
+
+    function gAbbr() {
+      return TZM[document.getElementById('tzSelector').value]?.a || 'GMT';
     }
-    
-    const headers=parseCSVLine(lines[0]);
-    console.log('Headers found:',headers);
-    const colMap={};
-    headers.forEach((h,i)=>{colMap[h.trim().replace(/^"|"$/g,'').replace(/^\uFEFF/,'')]=i;});
-    
-    function findCol(name){if(colMap[name]!==undefined)return colMap[name];const lc=name.toLowerCase();for(const[k,v]of Object.entries(colMap)){if(k.toLowerCase()===lc)return v;}return undefined;}
-    
-    const C={date:findCol('SessionDate'),title:findCol('SessionTitle'),gmt:findCol('StartTimeGMT'),cat:findCol('SessionCategory'),type:findCol('SessionType'),ws:findCol('Workstream'),trainer:findCol('TrainerName'),regions:findCol('TargetRegions'),lang:findCol('Language'),status:findCol('Status'),flag:findCol('EventFlag'),flagDetail:findCol('FlagDetail'),desc:findCol('Description'),link:findCol('Link')};
-    
-    console.log('Column mapping:',C);
-    
-    if(C.date===undefined){
-      showError('Missing Column','Could not find "SessionDate" column. Available columns: '+headers.join(', '));
-      setStatus('error','Missing SessionDate');
-      return;
+
+    function cvt(gmt) {
+      if (!gmt) return { time: '', ds: 0 };
+
+      const offset = gOff();
+      const [hours, minutes] = gmt.split(':').map(Number);
+      let total = hours * 60 + minutes + Math.round(offset * 60);
+      let dayShift = 0;
+
+      if (total < 0) {
+        total += 1440;
+        dayShift = -1;
+      }
+
+      if (total >= 1440) {
+        total -= 1440;
+        dayShift = 1;
+      }
+
+      return {
+        time: `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`,
+        ds: dayShift
+      };
     }
-    
-    const newData=[];let skipped=0;
-    for(let i=1;i<lines.length;i++){
-      const vals=parseCSVLine(lines[i]);
-      const get=c=>c!==undefined&&vals[c]!==undefined?vals[c].trim().replace(/^"|"$/g,''):'';
-      const date=normalizeDate(get(C.date));
-      if(!date){skipped++;continue;}
-      const title=get(C.title),flag=get(C.flag)||'Training Session';
-      newData.push({date,gmt:get(C.gmt),title:title||get(C.flagDetail)||'',cat:get(C.cat),type:get(C.type),ws:get(C.ws)||'Tech L&D',trainer:get(C.trainer)||'Unknown',regions:(get(C.regions)||'').split(';').map(r=>r.trim()).filter(r=>r),lang:get(C.lang)||'English',status:get(C.status)||'Scheduled',flag,flagDetail:get(C.flagDetail),desc:get(C.desc),link:get(C.link)});
+
+    function fmt(gmt) {
+      if (!gmt) return 'TBC';
+
+      const { time, ds } = cvt(gmt);
+      const shift = ds === 1
+        ? '<span class="day-shift">+1D</span>'
+        : ds === -1
+          ? '<span class="day-shift">−1D</span>'
+          : '';
+
+      return time + shift;
     }
-    
-    console.log('Rows parsed:',newData.length,'Rows skipped:',skipped);
-    
-    if(!newData.length){
-      showError('No Valid Data',`Parsed ${newData.length} rows. ${skipped} rows were skipped (blank or invalid date).`);
-      setStatus('error','No valid rows');
-      return;
+
+    function fmtP(gmt) {
+      if (!gmt) return 'TBC';
+
+      const { time, ds } = cvt(gmt);
+      return time + (ds === 1 ? ' (+1 day)' : ds === -1 ? ' (−1 day)' : '');
     }
-    
-    DATA=newData;
-    const first=DATA.find(d=>d.flag==='Training Session')?.date||DATA[0].date;
-    CY=dateYear(first);CM=dateMonth(first);
-    buildDynamicFilters();render();
-    setStatus('live',`✅ Loaded ${DATA.length} sessions`);
-    document.getElementById('errorContainer').innerHTML='';
-    
-  }catch(err){
-    console.error('CSV load error:',err);
-    showError('Load Error',`${err.message}`);
-    setStatus('error','Failed to load');
-  }finally{
-    document.getElementById('loadingOverlay').classList.add('hidden');
-  }
-}
 
-function setStatus(type,msg){
-  const el=document.getElementById('dataStatus');
-  const cls=type==='live'?'dot':type==='error'?'dot error':'dot loading';
-  el.innerHTML=`<span class="${cls}"></span> ${msg}`;
-}
+    function normalizeDate(raw) {
+      if (!raw) return null;
 
-function parseCSVLine(line){
-  const r=[];let cur='',inQ=false;
-  for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){r.push(cur);cur='';}else cur+=c;}
-  r.push(cur);return r;
-}
+      const value = raw.trim();
 
-// ===== DYNAMIC FILTERS =====
-function buildDynamicFilters(){
-  const wsC={'Tech L&D':'tech-ld','Pencil':'pencil','L&D':'ld'};
-  const wsList=[...new Set(DATA.map(d=>d.ws))].filter(w=>w).sort();
-  document.getElementById('wsFilters').innerHTML=wsList.map(w=>`<label><input type="checkbox" value="${w}" checked onchange="render()"><span class="badge ${wsC[w]||'tech-ld'}"></span> ${w}</label>`).join('');
-  const catI={'Pencil':'🖊️','Gen AI':'🤖','Core Skills':'📚','Webinars':'📡'};
-  const cats=[...new Set(DATA.map(d=>d.cat))].filter(c=>c).sort();
-  document.getElementById('catFilters').innerHTML=cats.map(c=>`<label><input type="checkbox" value="${c}" checked onchange="render()"> ${catI[c]||'📄'} ${c}</label>`).join('');
-  const flagI={'Training Session':'✅','Public Holiday':'🔴'};
-  const flags=[...new Set(DATA.map(d=>d.flag))].filter(f=>f);
-  document.getElementById('flagFilters').innerHTML=flags.map(f=>`<label><input type="checkbox" value="${f}" checked onchange="render()"> ${flagI[f]||'🔹'} ${f}</label>`).join('');
-  const langs=[...new Set(DATA.map(d=>d.lang))].filter(l=>l).sort();
-  document.getElementById('langSelector').innerHTML='<option value="All">🗣️ All Languages</option>'+langs.map(l=>`<option value="${l}">${LF[l]||'🌐'} ${l}</option>`).join('');
-  const regions=new Set();DATA.forEach(d=>d.regions.forEach(r=>regions.add(r)));
-  document.getElementById('regionSelector').innerHTML='<option value="All">🌐 All Regions</option>'+[...regions].sort().map(r=>`<option value="${r}">${RL[r]||r}</option>`).join('');
-}
+      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+      if (/^\d{4}\/\d{2}\/\d{2}$/.test(value)) return value.replace(/\//g, '-');
 
-// ===== HELPERS =====
-function gC(id){return[...document.querySelectorAll(`#${id} input:checked`)].map(c=>c.value);}
-function getMD(){
-  const ws=gC('wsFilters'),rg=document.getElementById('regionSelector').value,ln=document.getElementById('langSelector').value,ca=gC('catFilters'),fl=gC('flagFilters'),st=document.getElementById('statusFilter').value;
-  return DATA.filter(d=>{
-    if(dateYear(d.date)!==CY||dateMonth(d.date)!==CM)return false;
-    if(ws.length&&!ws.includes(d.ws))return false;
-    if(d.cat&&ca.length&&!ca.includes(d.cat)&&d.flag==='Training Session')return false;
-    if(fl.length&&!fl.includes(d.flag))return false;
-    if(st!=='All'&&d.status!==st)return false;
-    if(rg!=='All'&&d.regions.length&&!d.regions.includes(rg))return false;
-    if(ln!=='All'&&d.lang&&d.lang!==ln)return false;
-    return true;
-  });
-}
-function gMW(y,m){
-  const f=new Date(Date.UTC(y,m,1)),l=new Date(Date.UTC(y,m+1,0));
-  let s=new Date(f);const dw=s.getUTCDay()||7;s.setUTCDate(s.getUTCDate()-(dw-1));
-  let e=new Date(l);const ed=e.getUTCDay()||7;
-  if(ed<5)e.setUTCDate(e.getUTCDate()+(5-ed));else if(ed>5)e.setUTCDate(e.getUTCDate()+(12-ed));
-  const wks=[];let c=new Date(s),wk=[];
-  while(c<=e){const d=c.getUTCDay();if(d>=1&&d<=5){const iso=c.toISOString().split('T')[0];wk.push({date:iso,day:c.getUTCDate(),month:c.getUTCMonth(),isCM:c.getUTCMonth()===m,isT:iso===new Date().toISOString().split('T')[0]});if(d===5){wks.push(wk);wk=[];}}c.setUTCDate(c.getUTCDate()+1);}
-  if(wk.length)wks.push(wk);return wks;
-}
-function wsC(w,f){if(f==='Public Holiday')return'ws-holiday';return w==='Tech L&D'?'ws-tech-ld':w==='Pencil'?'ws-pencil':'ws-ld';}
-function wsTC(w){return w==='Tech L&D'?'tech-ld':w==='Pencil'?'pencil':'ld';}
-function catC(c){return c==='Pencil'?'c-pencil':c==='Gen AI'?'c-genai':c==='Webinars'?'c-webinar':'c-core';}
-function fT(f,d){return f==='Training Session'?'':`<span class="flag-tag holiday">${d||f}</span>`;}
+      const match = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
 
-// ===== RENDER =====
-function render(){
-  if(!DATA.length)return;
-  const F=getMD(),W=gMW(CY,CM),tz=gAbbr();
-  const rS=document.getElementById('regionSelector'),lS=document.getElementById('langSelector');
-  document.getElementById('monthLabel').textContent=`${MN[CM]} ${CY}`;
-  document.getElementById('tzBadge').textContent=tz;
-  document.getElementById('regionBadge').textContent=rS.options[rS.selectedIndex].text;
-  document.getElementById('langBadge').textContent=lS.options[lS.selectedIndex].text;
-  const sess=F.filter(d=>d.flag==='Training Session'),aR=new Set();
-  sess.forEach(d=>d.regions.forEach(r=>aR.add(r)));
-  document.getElementById('kpiTotal').textContent=sess.length;
-  document.getElementById('kpiPencil').textContent=sess.filter(d=>d.cat==='Pencil').length;
-  document.getElementById('kpiWebinars').textContent=sess.filter(d=>d.cat==='Webinars').length;
-  document.getElementById('kpiRegions').textContent=aR.size;
-  document.getElementById('kpiAlerts').textContent=F.filter(d=>d.flag==='Public Holiday').length;
-  const bD={};F.forEach(d=>{if(!bD[d.date])bD[d.date]=[];bD[d.date].push(d);});
-  const g=document.getElementById('monthGrid');
-  g.style.gridTemplateRows=`repeat(${W.length},1fr)`;g.innerHTML='';
-  W.forEach(wk=>wk.forEach(di=>{
-    const ev=(bD[di.date]||[]).sort((a,b)=>(a.gmt||'').localeCompare(b.gmt||''));
-    const cn=ev.filter(e=>e.flag==='Training Session').length;
-    let eh='';ev.forEach(e=>{const t=e.title||e.flagDetail,tm=e.gmt?`<span class="ev-time">${fmt(e.gmt)}</span> `:'';
-      const mt=e.flag==='Training Session'?`<div class="ev-meta">${e.trainer}·${e.regions.slice(0,2).join(',')}${e.regions.length>2?'…':''}</div>`:'';
-      eh+=`<div class="m-event ${wsC(e.ws,e.flag)}">${tm}${t}${mt}</div>`;});
-    if(!ev.length&&di.isCM)eh='<div style="font-size:6px;color:#d1d5db;padding:1px">—</div>';
-    g.innerHTML+=`<div class="month-day${di.isCM?'':' outside'}${di.isT?' today':''}${selDate===di.date?' selected':''}" onclick="openP('${di.date}')"><div class="month-day-hdr"><span class="date-num">${di.day}</span>${cn?`<span class="session-count">${cn}</span>`:''}</div><div class="month-day-body">${eh}</div></div>`;
-  }));
-  const lb=document.getElementById('listBody');lb.innerHTML='';
-  [...F].sort((a,b)=>a.date.localeCompare(b.date)||(a.gmt||'').localeCompare(b.gmt||'')).forEach(d=>{
-    const t=d.title||d.flagDetail||'—',rp=d.regions.map(r=>`<span class="region-pill">${r}</span>`).join('');
-    const ct=d.cat?`<span class="cat-tag ${catC(d.cat)}">${d.cat}</span>`:'—';
-    const lt=d.lang?`<span class="lang-tag">${LF[d.lang]||''} ${d.lang}</span>`:'—';
-    lb.innerHTML+=`<tr onclick="openP('${d.date}')"><td>${dateShort(d.date)}</td><td>${d.gmt?fmt(d.gmt)+' <span style="font-size:7px;color:#9ca3af">'+tz+'</span>':'—'}</td><td><strong>${t}</strong><br><span style="font-size:8px;color:#6b7280">${d.type||''}</span></td><td>${ct}</td><td>${lt}</td><td><span class="ws-tag ${wsTC(d.ws)}">${d.ws}</span></td><td>${d.trainer}</td><td><div class="region-pills">${rp}</div></td><td>${fT(d.flag,d.flagDetail)}</td></tr>`;
-  });
-  document.getElementById('printTitle').textContent=`Training Schedule — ${MN[CM]} ${CY}`;
-  document.getElementById('printMeta').textContent=`Region: ${rS.options[rS.selectedIndex].text} · Language: ${lS.options[lS.selectedIndex].text} · Times in ${tz} · Printed ${new Date().toLocaleDateString('en-GB')}`;
-  if(selDate&&document.getElementById('detailPanel').classList.contains('open'))renderP(selDate);
-}
+      if (match) {
+        const day = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10);
+        const year = parseInt(match[3], 10);
 
-// ===== PANEL =====
-function openP(d){selDate=d;document.getElementById('panelOverlay').classList.add('open');document.getElementById('detailPanel').classList.add('open');renderP(d);render();}
-function closePanel(){selDate=null;document.getElementById('panelOverlay').classList.remove('open');document.getElementById('detailPanel').classList.remove('open');render();}
-function renderP(ds){
-  const tz=gAbbr();
-  document.getElementById('panelTitle').textContent=dateShort(ds);
-  document.getElementById('panelDateSub').textContent=`${dateFull(ds)} · Times in ${tz}`;
-  const ws=gC('wsFilters'),rg=document.getElementById('regionSelector').value,ln=document.getElementById('langSelector').value,ca=gC('catFilters'),fl=gC('flagFilters'),st=document.getElementById('statusFilter').value;
-  const dD=DATA.filter(d=>{if(d.date!==ds)return false;if(ws.length&&!ws.includes(d.ws))return false;if(d.cat&&ca.length&&!ca.includes(d.cat)&&d.flag==='Training Session')return false;if(fl.length&&!fl.includes(d.flag))return false;if(st!=='All'&&d.status!==st)return false;if(rg!=='All'&&d.regions.length&&!d.regions.includes(rg))return false;if(ln!=='All'&&d.lang&&d.lang!==ln)return false;return true;}).sort((a,b)=>(a.gmt||'').localeCompare(b.gmt||''));
-  const body=document.getElementById('panelBody');
-  if(!dD.length){body.innerHTML='<div class="panel-empty"><div class="pe-icon">📭</div><div class="pe-text">No sessions scheduled<br>(with current filters)</div></div>';return;}
-  const ss=dD.filter(d=>d.flag==='Training Session'),hols=dD.filter(d=>d.flag==='Public Holiday');
-  let h=`<div class="panel-summary"><div class="panel-stat"><div class="ps-val">${ss.length}</div><div class="ps-label">Sessions</div></div><div class="panel-stat"><div class="ps-val">${new Set(ss.map(d=>d.ws)).size}</div><div class="ps-label">Workstreams</div></div><div class="panel-stat"><div class="ps-val">${new Set(ss.map(d=>d.cat).filter(Boolean)).size}</div><div class="ps-label">Categories</div></div></div>`;
-  hols.forEach(ho=>{h+=`<div class="panel-holiday-banner"><div class="ph-icon">🔴</div><div class="ph-text">${ho.title||ho.flagDetail}</div><div class="ph-regions">${ho.regions.map(r=>RL[r]||r).join(' · ')}</div></div>`;});
-  if(hols.length&&ss.length)h+='<div class="panel-divider"></div>';
-  ss.forEach(s=>{const cT=s.cat?`<span class="cat-tag ${catC(s.cat)}">${s.cat}</span>`:'';const lT=s.lang?`<span class="lang-tag">${LF[s.lang]||''} ${s.lang}</span>`:'';
-    const regBtn=s.link?`<a href="${s.link}" target="_blank" class="register-btn">📝 Register Now</a>`:'';
-    h+=`<div class="panel-session"><div class="panel-session-header ${wsC(s.ws,s.flag)}"><div><div class="panel-session-title">${s.title}</div><div class="panel-session-type">${s.type} · <span class="ws-tag ${wsTC(s.ws)}">${s.ws}</span> ${cT} ${lT}</div></div><div class="panel-session-time">${s.gmt?fmt(s.gmt):''}<br><span class="tz-label">${tz}</span></div></div><div class="panel-session-body"><div class="detail-row"><span class="detail-label">Trainer</span><span class="detail-value">${s.trainer}</span></div><div class="detail-row"><span class="detail-label">Regions</span><span class="detail-value">${s.regions.map(r=>RL[r]||r).join(', ')}</span></div><div class="detail-row"><span class="detail-label">Language</span><span class="detail-value">${LF[s.lang]||''} ${s.lang||'—'}</span></div><div class="detail-row"><span class="detail-label">GMT</span><span class="detail-value">${s.gmt||'TBC'} GMT</span></div><div class="detail-row"><span class="detail-label">Local</span><span class="detail-value">${fmtP(s.gmt)} ${tz}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${s.status}</span></div>${regBtn}</div><div class="panel-session-desc">📝 ${s.desc||'Description to be added.'}</div></div>`;});
-  body.innerHTML=h;
-}
+        if (day > 12) {
+          return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
 
-function navMonth(d){CM+=d;if(CM>11){CM=0;CY++;}if(CM<0){CM=11;CY--;}render();}
-function switchView(v,btn){curView=v;document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelector('.month-calendar').classList.toggle('active',v==='calendar');document.querySelector('.list-view').classList.toggle('active',v==='list');document.getElementById('printBtn').classList.toggle('show',v==='list');}
-function printList(){window.print();}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel();});
+        if (month > 12) {
+          return `${year}-${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}`;
+        }
 
-// ===== INIT =====
-loadCSV();
-</script>
+        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      }
+
+      const parsed = new Date(value);
+
+      if (!isNaN(parsed)) {
+        return `${parsed.getUTCFullYear()}-${String(parsed.getUTCMonth() + 1).padStart(2, '0')}-${String(parsed.getUTCDate()).padStart(2, '0')}`;
+      }
+
+      return null;
+    }
+
+    function normalizeCategory(category) {
+      const value = (category || '').trim();
+
+      if (/^pm[\s_-]*cycle$/i.test(value)) {
+        return 'Core Skills';
+      }
+
+      return value;
+    }
+
+    function dateYear(date) {
+      return parseInt(date.substring(0, 4), 10);
+    }
+
+    function dateMonth(date) {
+      return parseInt(date.substring(5, 7), 10) - 1;
+    }
+
+    function dateShort(date) {
+      const parsed = new Date(date + 'T12:00:00Z');
+      return parsed.toLocaleDateString('en-GB', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        timeZone: 'UTC'
+      });
+    }
+
+    function dateFull(date) {
+      const parsed = new Date(date + 'T12:00:00Z');
+      return parsed.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC'
+      });
+    }
+
+    let CY = 2026;
+    let CM = 0;
+    let selDate = null;
+    let curView = 'calendar';
+    let DATA = [];
+
+    const MN = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const RL = {
+      'APAC': 'APAC',
+      'EMEA': 'EMEA',
+      'UK': 'UK',
+      'LATAM': 'LATAM',
+      'NA-Eastern': 'NA East',
+      'NA-Pacific': 'NA Pacific'
+    };
+
+    function showError(title, message) {
+      console.error(title, message);
+
+      document.getElementById('errorContainer').innerHTML = `
+        <div class="error-banner">
+          <h3>${title}</h3>
+          <p>${message}</p>
+        </div>
+      `;
+    }
+
+    async function loadCSV() {
+      try {
+        const response = await fetch(CSV_URL);
+
+        if (!response.ok) {
+          showError('Network error', `HTTP ${response.status}: ${response.statusText}`);
+          setStatus('error', `HTTP ${response.status}`);
+          return;
+        }
+
+        let text = await response.text();
+
+        if (text.charCodeAt(0) === 0xFEFF) {
+          text = text.substring(1);
+        }
+
+        const lines = text
+          .split(/\r?\n/)
+          .map(line => line.trim())
+          .filter(Boolean);
+
+        if (lines.length < 2) {
+          showError('CSV unavailable', 'The data source does not contain a header and at least one data row.');
+          setStatus('error', 'CSV unavailable');
+          return;
+        }
+
+        const headers = parseCSVLine(lines[0]);
+        const colMap = {};
+
+        headers.forEach((header, index) => {
+          colMap[header.trim().replace(/^"|"$/g, '').replace(/^\uFEFF/, '')] = index;
+        });
+
+        function findCol(name) {
+          if (colMap[name] !== undefined) return colMap[name];
+
+          const lowerName = name.toLowerCase();
+
+          for (const [key, value] of Object.entries(colMap)) {
+            if (key.toLowerCase() === lowerName) return value;
+          }
+
+          return undefined;
+        }
+
+        const C = {
+          date: findCol('SessionDate'),
+          title: findCol('SessionTitle'),
+          gmt: findCol('StartTimeGMT'),
+          cat: findCol('SessionCategory'),
+          type: findCol('SessionType'),
+          ws: findCol('Workstream'),
+          trainer: findCol('TrainerName'),
+          regions: findCol('TargetRegions'),
+          lang: findCol('Language'),
+          status: findCol('Status'),
+          flag: findCol('EventFlag'),
+          flagDetail: findCol('FlagDetail'),
+          desc: findCol('Description'),
+          link: findCol('Link')
+        };
+
+        if (C.date === undefined) {
+          showError(
+            'Missing column',
+            `The SessionDate column could not be found. Available columns: ${headers.join(', ')}`
+          );
+          setStatus('error', 'Missing SessionDate');
+          return;
+        }
+
+        const newData = [];
+        let skipped = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          const values = parseCSVLine(lines[i]);
+
+          const get = column => {
+            if (column === undefined || values[column] === undefined) return '';
+            return values[column].trim().replace(/^"|"$/g, '');
+          };
+
+          const date = normalizeDate(get(C.date));
+
+          if (!date) {
+            skipped++;
+            continue;
+          }
+
+          const title = get(C.title);
+          const flag = get(C.flag) || 'Training Session';
+
+          newData.push({
+            date,
+            gmt: get(C.gmt),
+            title: title || get(C.flagDetail) || '',
+            cat: normalizeCategory(get(C.cat)),
+            type: get(C.type),
+            ws: get(C.ws) || 'Tech L&D',
+            trainer: get(C.trainer) || 'Unknown',
+            regions: (get(C.regions) || '')
+              .split(';')
+              .map(region => region.trim())
+              .filter(Boolean),
+            lang: get(C.lang) || 'English',
+            status: get(C.status) || 'Scheduled',
+            flag,
+            flagDetail: get(C.flagDetail),
+            desc: get(C.desc),
+            link: get(C.link)
+          });
+        }
+
+        if (!newData.length) {
+          showError(
+            'No valid data',
+            `${skipped} rows were skipped because they contained blank or invalid dates.`
+          );
+          setStatus('error', 'No valid rows');
+          return;
+        }
+
+        DATA = newData;
+
+        const first = DATA.find(item =>
+          item.flag === 'Training Session' && item.ws !== 'Pencil'
+        )?.date || DATA[0].date;
+
+        CY = dateYear(first);
+        CM = dateMonth(first);
+
+        buildDynamicFilters();
+        render();
+        setStatus('live', `Loaded ${DATA.length} records`);
+        document.getElementById('errorContainer').innerHTML = '';
+      } catch (error) {
+        showError('Load error', error.message);
+        setStatus('error', 'Failed to load');
+      } finally {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+      }
+    }
+
+    function setStatus(type, message) {
+      const element = document.getElementById('dataStatus');
+      const dotClass = type === 'live'
+        ? 'dot'
+        : type === 'error'
+          ? 'dot error'
+          : 'dot loading';
+
+      element.innerHTML = `<span class="${dotClass}"></span>${message}`;
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const character = line[i];
+
+        if (character === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (character === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += character;
+        }
+      }
+
+      result.push(current);
+      return result;
+    }
+
+    function buildDynamicFilters() {
+      const workstreams = [...new Set(DATA.map(item => item.ws))]
+        .filter(workstream => workstream && workstream !== 'Pencil')
+        .sort();
+
+      document.getElementById('wsFilters').innerHTML = workstreams
+        .map(workstream => `
+          <label>
+            <input type="checkbox" value="${workstream}" checked onchange="render()">
+            <span class="badge"></span>
+            ${workstream}
+          </label>
+        `)
+        .join('');
+
+      const categories = [...new Set(DATA.map(item => normalizeCategory(item.cat)))]
+        .filter(Boolean)
+        .sort();
+
+      document.getElementById('catFilters').innerHTML = categories
+        .map(category => `
+          <label>
+            <input type="checkbox" value="${category}" checked onchange="render()">
+            ${category}
+          </label>
+        `)
+        .join('');
+
+      const flags = [...new Set(DATA.map(item => item.flag))]
+        .filter(Boolean);
+
+      document.getElementById('flagFilters').innerHTML = flags
+        .map(flag => `
+          <label>
+            <input type="checkbox" value="${flag}" checked onchange="render()">
+            ${flag}
+          </label>
+        `)
+        .join('');
+
+      const languages = [...new Set(DATA.map(item => item.lang))]
+        .filter(Boolean)
+        .sort();
+
+      document.getElementById('langSelector').innerHTML =
+        '<option value="All">All languages</option>' +
+        languages
+          .map(language => `<option value="${language}">${language}</option>`)
+          .join('');
+
+      const regions = new Set();
+
+      DATA.forEach(item => {
+        item.regions.forEach(region => regions.add(region));
+      });
+
+      document.getElementById('regionSelector').innerHTML =
+        '<option value="All">All regions</option>' +
+        [...regions]
+          .sort()
+          .map(region => `<option value="${region}">${RL[region] || region}</option>`)
+          .join('');
+    }
+
+    function gC(id) {
+      return [...document.querySelectorAll(`#${id} input:checked`)]
+        .map(input => input.value);
+    }
+
+    function passesFilters(item, includeMonth = true) {
+      const selectedWorkstreams = gC('wsFilters');
+      const selectedRegion = document.getElementById('regionSelector').value;
+      const selectedLanguage = document.getElementById('langSelector').value;
+      const selectedCategories = gC('catFilters');
+      const selectedFlags = gC('flagFilters');
+      const selectedStatus = document.getElementById('statusFilter').value;
+
+      if (includeMonth && (dateYear(item.date) !== CY || dateMonth(item.date) !== CM)) {
+        return false;
+      }
+
+      if (item.ws === 'Pencil') return false;
+      if (!selectedWorkstreams.includes(item.ws)) return false;
+
+      if (
+        item.cat &&
+        !selectedCategories.includes(normalizeCategory(item.cat)) &&
+        item.flag === 'Training Session'
+      ) {
+        return false;
+      }
+
+      if (!selectedFlags.includes(item.flag)) return false;
+      if (selectedStatus !== 'All' && item.status !== selectedStatus) return false;
+
+      if (
+        selectedRegion !== 'All' &&
+        item.regions.length &&
+        !item.regions.includes(selectedRegion)
+      ) {
+        return false;
+      }
+
+      if (
+        selectedLanguage !== 'All' &&
+        item.lang &&
+        item.lang !== selectedLanguage
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+
+    function getMD() {
+      return DATA.filter(item => passesFilters(item, true));
+    }
+
+    function gMW(year, month) {
+      const first = new Date(Date.UTC(year, month, 1));
+      const last = new Date(Date.UTC(year, month + 1, 0));
+
+      const start = new Date(first);
+      const firstDay = start.getUTCDay() || 7;
+      start.setUTCDate(start.getUTCDate() - (firstDay - 1));
+
+      const end = new Date(last);
+      const endDay = end.getUTCDay() || 7;
+
+      if (endDay < 5) {
+        end.setUTCDate(end.getUTCDate() + (5 - endDay));
+      } else if (endDay > 5) {
+        end.setUTCDate(end.getUTCDate() + (12 - endDay));
+      }
+
+      const weeks = [];
+      let cursor = new Date(start);
+      let week = [];
+
+      while (cursor <= end) {
+        const day = cursor.getUTCDay();
+
+        if (day >= 1 && day <= 5) {
+          const iso = cursor.toISOString().split('T')[0];
+
+          week.push({
+            date: iso,
+            day: cursor.getUTCDate(),
+            month: cursor.getUTCMonth(),
+            isCM: cursor.getUTCMonth() === month,
+            isT: iso === new Date().toISOString().split('T')[0]
+          });
+
+          if (day === 5) {
+            weeks.push(week);
+            week = [];
+          }
+        }
+
+        cursor.setUTCDate(cursor.getUTCDate() + 1);
+      }
+
+      if (week.length) weeks.push(week);
+      return weeks;
+    }
+
+    function wsC(workstream, flag) {
+      if (flag === 'Public Holiday') return 'ws-holiday';
+      return workstream === 'Tech L&D' ? 'ws-tech-ld' : 'ws-ld';
+    }
+
+    function fT(flag, detail) {
+      return flag === 'Training Session'
+        ? ''
+        : `<span class="flag-tag">${detail || flag}</span>`;
+    }
+
+    function render() {
+      if (!DATA.length) return;
+
+      const filtered = getMD();
+      const weeks = gMW(CY, CM);
+      const timezone = gAbbr();
+      const regionSelect = document.getElementById('regionSelector');
+      const languageSelect = document.getElementById('langSelector');
+
+      document.getElementById('monthLabel').textContent = `${MN[CM]} ${CY}`;
+      document.getElementById('tzBadge').textContent = timezone;
+      document.getElementById('regionBadge').textContent =
+        regionSelect.options[regionSelect.selectedIndex].text;
+      document.getElementById('langBadge').textContent =
+        languageSelect.options[languageSelect.selectedIndex].text;
+
+      const sessions = filtered.filter(item => item.flag === 'Training Session');
+      const activeRegions = new Set();
+
+      sessions.forEach(item => {
+        item.regions.forEach(region => activeRegions.add(region));
+      });
+
+      document.getElementById('kpiTotal').textContent = sessions.length;
+      document.getElementById('kpiCoreSkills').textContent =
+        sessions.filter(item => normalizeCategory(item.cat) === 'Core Skills').length;
+      document.getElementById('kpiWebinars').textContent =
+        sessions.filter(item => item.cat === 'Webinars').length;
+      document.getElementById('kpiRegions').textContent = activeRegions.size;
+      document.getElementById('kpiAlerts').textContent =
+        filtered.filter(item => item.flag === 'Public Holiday').length;
+
+      const byDate = {};
+
+      filtered.forEach(item => {
+        if (!byDate[item.date]) byDate[item.date] = [];
+        byDate[item.date].push(item);
+      });
+
+      const grid = document.getElementById('monthGrid');
+      grid.style.gridTemplateRows = `repeat(${weeks.length}, 1fr)`;
+      grid.innerHTML = '';
+
+      weeks.forEach(week => {
+        week.forEach(dayInfo => {
+          const events = (byDate[dayInfo.date] || [])
+            .sort((a, b) => (a.gmt || '').localeCompare(b.gmt || ''));
+
+          const sessionCount = events.filter(
+            item => item.flag === 'Training Session'
+          ).length;
+
+          let eventHTML = '';
+
+          events.forEach(item => {
+            const title = item.title || item.flagDetail;
+            const time = item.gmt
+              ? `<span class="ev-time">${fmt(item.gmt)}</span> `
+              : '';
+
+            const meta = item.flag === 'Training Session'
+              ? `<div class="ev-meta">${item.trainer} · ${item.regions.slice(0, 2).join(', ')}${item.regions.length > 2 ? '…' : ''}</div>`
+              : '';
+
+            eventHTML += `
+              <div class="m-event ${wsC(item.ws, item.flag)}">
+                ${time}${title}${meta}
+              </div>
+            `;
+          });
+
+          if (!events.length && dayInfo.isCM) {
+            eventHTML = '<div style="font-size:.55rem;color:rgba(0,0,0,.35);padding:2px">—</div>';
+          }
+
+          grid.innerHTML += `
+            <div
+              class="month-day${dayInfo.isCM ? '' : ' outside'}${dayInfo.isT ? ' today' : ''}${selDate === dayInfo.date ? ' selected' : ''}"
+              onclick="openP('${dayInfo.date}')"
+            >
+              <div class="month-day-hdr">
+                <span class="date-num">${dayInfo.day}</span>
+                ${sessionCount ? `<span class="session-count">${sessionCount}</span>` : ''}
+              </div>
+              <div class="month-day-body">${eventHTML}</div>
+            </div>
+          `;
+        });
+      });
+
+      const listBody = document.getElementById('listBody');
+      listBody.innerHTML = '';
+
+      [...filtered]
+        .sort((a, b) =>
+          a.date.localeCompare(b.date) ||
+          (a.gmt || '').localeCompare(b.gmt || '')
+        )
+        .forEach(item => {
+          const title = item.title || item.flagDetail || '—';
+          const regionPills = item.regions
+            .map(region => `<span class="region-pill">${RL[region] || region}</span>`)
+            .join('');
+
+          const category = item.cat
+            ? `<span class="cat-tag">${normalizeCategory(item.cat)}</span>`
+            : '—';
+
+          const language = item.lang
+            ? `<span class="lang-tag">${item.lang}</span>`
+            : '—';
+
+          listBody.innerHTML += `
+            <tr onclick="openP('${item.date}')">
+              <td>${dateShort(item.date)}</td>
+              <td>
+                ${item.gmt ? `${fmt(item.gmt)} <span style="font-size:.48rem;color:rgba(0,0,0,.55)">${timezone}</span>` : '—'}
+              </td>
+              <td>
+                <strong>${title}</strong><br>
+                <span style="font-size:.52rem;color:rgba(0,0,0,.55)">${item.type || ''}</span>
+              </td>
+              <td>${category}</td>
+              <td>${language}</td>
+              <td><span class="ws-tag">${item.ws}</span></td>
+              <td>${item.trainer}</td>
+              <td><div class="region-pills">${regionPills}</div></td>
+              <td>${fT(item.flag, item.flagDetail)}</td>
+            </tr>
+          `;
+        });
+
+      document.getElementById('printTitle').textContent =
+        `OLIVER Training Schedule — ${MN[CM]} ${CY}`;
+
+      document.getElementById('printMeta').textContent =
+        `Region: ${regionSelect.options[regionSelect.selectedIndex].text} · ` +
+        `Language: ${languageSelect.options[languageSelect.selectedIndex].text} · ` +
+        `Times in ${timezone} · Printed ${new Date().toLocaleDateString('en-GB')}`;
+
+      if (
+        selDate &&
+        document.getElementById('detailPanel').classList.contains('open')
+      ) {
+        renderP(selDate);
+      }
+    }
+
+    function openP(date) {
+      selDate = date;
+      document.getElementById('panelOverlay').classList.add('open');
+      document.getElementById('detailPanel').classList.add('open');
+      renderP(date);
+      render();
+    }
+
+    function closePanel() {
+      selDate = null;
+      document.getElementById('panelOverlay').classList.remove('open');
+      document.getElementById('detailPanel').classList.remove('open');
+      render();
+    }
+
+    function renderP(dateString) {
+      const timezone = gAbbr();
+
+      document.getElementById('panelTitle').textContent = dateShort(dateString);
+      document.getElementById('panelDateSub').textContent =
+        `${dateFull(dateString)} · Times in ${timezone}`;
+
+      const dayData = DATA
+        .filter(item => item.date === dateString && passesFilters(item, false))
+        .sort((a, b) => (a.gmt || '').localeCompare(b.gmt || ''));
+
+      const body = document.getElementById('panelBody');
+
+      if (!dayData.length) {
+        body.innerHTML = `
+          <div class="panel-empty">
+            <div class="pe-icon"></div>
+            <div class="pe-text">No sessions scheduled with the current filters</div>
+          </div>
+        `;
+        return;
+      }
+
+      const sessions = dayData.filter(item => item.flag === 'Training Session');
+      const holidays = dayData.filter(item => item.flag === 'Public Holiday');
+
+      let html = `
+        <div class="panel-summary">
+          <div class="panel-stat">
+            <div class="ps-val">${sessions.length}</div>
+            <div class="ps-label">Sessions</div>
+          </div>
+          <div class="panel-stat">
+            <div class="ps-val">${new Set(sessions.map(item => item.ws)).size}</div>
+            <div class="ps-label">Workstreams</div>
+          </div>
+          <div class="panel-stat">
+            <div class="ps-val">${new Set(sessions.map(item => normalizeCategory(item.cat)).filter(Boolean)).size}</div>
+            <div class="ps-label">Categories</div>
+          </div>
+        </div>
+      `;
+
+      holidays.forEach(holiday => {
+        html += `
+          <div class="panel-holiday-banner">
+            <div class="ph-text">${holiday.title || holiday.flagDetail}</div>
+            <div class="ph-regions">
+              ${holiday.regions.map(region => RL[region] || region).join(' · ')}
+            </div>
+          </div>
+        `;
+      });
+
+      if (holidays.length && sessions.length) {
+        html += '<div class="panel-divider"></div>';
+      }
+
+      sessions.forEach(session => {
+        const category = session.cat
+          ? `<span class="cat-tag">${normalizeCategory(session.cat)}</span>`
+          : '';
+
+        const language = session.lang
+          ? `<span class="lang-tag">${session.lang}</span>`
+          : '';
+
+        const registerButton = session.link
+          ? `<a href="${session.link}" target="_blank" rel="noopener noreferrer" class="register-btn">Register now</a>`
+          : '';
+
+        html += `
+          <div class="panel-session">
+            <div class="panel-session-header ${wsC(session.ws, session.flag)}">
+              <div>
+                <div class="panel-session-title">${session.title}</div>
+                <div class="panel-session-type">
+                  ${session.type || ''}
+                  <span class="ws-tag">${session.ws}</span>
+                  ${category}
+                  ${language}
+                </div>
+              </div>
+              <div class="panel-session-time">
+                ${session.gmt ? fmt(session.gmt) : 'TBC'}<br>
+                <span class="tz-label">${timezone}</span>
+              </div>
+            </div>
+
+            <div class="panel-session-body">
+              <div class="detail-row">
+                <span class="detail-label">Trainer</span>
+                <span>${session.trainer}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Regions</span>
+                <span>${session.regions.map(region => RL[region] || region).join(', ') || '—'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Language</span>
+                <span>${session.lang || '—'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">GMT</span>
+                <span>${session.gmt || 'TBC'} GMT</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Local</span>
+                <span>${fmtP(session.gmt)} ${timezone}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Status</span>
+                <span>${session.status}</span>
+              </div>
+              ${registerButton}
+            </div>
+
+            <div class="panel-session-desc">
+              ${session.desc || 'Description to be added.'}
+            </div>
+          </div>
+        `;
+      });
+
+      body.innerHTML = html;
+    }
+
+    function navMonth(direction) {
+      CM += direction;
+
+      if (CM > 11) {
+        CM = 0;
+        CY++;
+      }
+
+      if (CM < 0) {
+        CM = 11;
+        CY--;
+      }
+
+      render();
+    }
+
+    function switchView(view, button) {
+      curView = view;
+
+      document.querySelectorAll('.view-btn').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      button.classList.add('active');
+
+      document
+        .querySelector('.month-calendar')
+        .classList.toggle('active', view === 'calendar');
+
+      document
+        .querySelector('.list-view')
+        .classList.toggle('active', view === 'list');
+
+      document
+        .getElementById('printBtn')
+        .classList.toggle('show', view === 'list');
+    }
+
+    function printList() {
+      window.print();
+    }
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closePanel();
+    });
+
+    loadCSV();
+  </script>
 </body>
 </html>
+
