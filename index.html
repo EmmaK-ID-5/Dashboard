@@ -2,62 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OLIVER Training Schedule</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet"
   />
+
   <style>
     :root {
-      --color-yellow: #FFC407;
-      --color-black: #000000;
-      --color-white: #FFFFFF;
-      --color-yellow-dim: rgba(255, 196, 7, 0.15);
-      --color-yellow-faint: rgba(255, 196, 7, 0.08);
-      --color-black-soft: rgba(0, 0, 0, 0.55);
-      --color-black-muted: rgba(0, 0, 0, 0.35);
-      --color-black-faint: rgba(0, 0, 0, 0.08);
-      --color-black-border: rgba(0, 0, 0, 0.12);
-      --color-white-soft: rgba(255, 255, 255, 0.75);
-      --color-white-muted: rgba(255, 255, 255, 0.45);
-      --color-white-border: rgba(255, 255, 255, 0.15);
-
-      --font-family: 'Montserrat', sans-serif;
-      --font-display: clamp(2.5rem, 6vw, 4rem);
-      --font-h1: clamp(1.8rem, 4vw, 2.8rem);
-      --font-h2: 1.5rem;
-      --font-h3: 1.15rem;
-      --font-body: 0.9rem;
-      --font-label: 0.72rem;
-      --font-caption: 0.65rem;
-
-      --space-xs: 6px;
-      --space-sm: 12px;
-      --space-md: 20px;
-      --space-lg: 32px;
-      --space-xl: 48px;
-      --space-2xl: 80px;
-
+      --yellow: #ffc407;
+      --black: #000;
+      --white: #fff;
+      --yellow-dim: rgba(255, 196, 7, 0.15);
+      --yellow-faint: rgba(255, 196, 7, 0.08);
+      --black-soft: rgba(0, 0, 0, 0.55);
+      --black-faint: rgba(0, 0, 0, 0.08);
+      --black-border: rgba(0, 0, 0, 0.12);
+      --white-soft: rgba(255, 255, 255, 0.75);
+      --white-muted: rgba(255, 255, 255, 0.45);
+      --white-border: rgba(255, 255, 255, 0.15);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
       --radius-sm: 3px;
       --radius-md: 8px;
-      --radius-lg: 14px;
       --radius-pill: 999px;
-      --radius-circle: 50%;
-
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
     }
 
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Montserrat', sans-serif;
+      font-family: "Montserrat", sans-serif;
     }
 
     body {
-      background-color: var(--color-white);
-      color: var(--color-black);
+      background: var(--white);
+      color: var(--black);
       line-height: 1.6;
       overflow: hidden;
     }
@@ -72,34 +54,44 @@
     select:focus-visible,
     input:focus-visible,
     a:focus-visible {
-      outline: 3px solid var(--color-yellow);
+      outline: 3px solid var(--yellow);
       outline-offset: 2px;
     }
 
     .topbar {
       min-height: 74px;
-      padding: var(--space-sm) var(--space-lg);
-      background: var(--color-black);
-      color: var(--color-white);
+      padding: 12px 32px;
+      background: var(--black);
+      color: var(--white);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: var(--space-md);
+      gap: 20px;
+    }
+
+    .brand-lockup,
+    .top-right,
+    .tz-wrap,
+    .data-status,
+    .view-controls,
+    .month-nav,
+    .panel-summary,
+    .region-pills {
+      display: flex;
+      align-items: center;
     }
 
     .brand-lockup {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
+      gap: 12px;
     }
 
     .brand-mark {
       min-width: 68px;
       height: 34px;
-      padding: 0 var(--space-sm);
+      padding: 0 12px;
       border-radius: var(--radius-sm);
-      background: var(--color-yellow);
-      color: var(--color-black);
+      background: var(--yellow);
+      color: var(--black);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -110,7 +102,7 @@
     }
 
     .topbar h1 {
-      color: var(--color-white);
+      color: var(--white);
       font-size: 1rem;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -119,36 +111,33 @@
     }
 
     .topbar h1 span {
-      color: var(--color-yellow);
+      color: var(--yellow);
     }
 
     .subtitle {
       margin-top: 3px;
-      color: var(--color-white-soft);
-      font-size: var(--font-caption);
+      color: var(--white-soft);
+      font-size: 0.65rem;
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .top-right {
-      display: flex;
-      align-items: center;
       justify-content: flex-end;
-      gap: var(--space-md);
+      gap: 20px;
       flex-wrap: wrap;
     }
 
-    .tz-wrap {
-      display: flex;
-      align-items: center;
-      gap: var(--space-xs);
+    .tz-wrap,
+    .data-status {
+      gap: 6px;
     }
 
     .tz-wrap label,
     .data-status {
-      color: var(--color-white-soft);
-      font-size: var(--font-caption);
+      color: var(--white-soft);
+      font-size: 0.65rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -156,56 +145,55 @@
 
     .tz-wrap select {
       padding: 6px 9px;
-      border: 1px solid var(--color-yellow);
+      border: 1px solid var(--yellow);
       border-radius: var(--radius-sm);
-      background: var(--color-black);
-      color: var(--color-white);
-      font-size: var(--font-caption);
+      background: var(--black);
+      color: var(--white);
+      font-size: 0.65rem;
       font-weight: 600;
       cursor: pointer;
     }
 
-    .data-status {
-      display: flex;
-      align-items: center;
-      gap: var(--space-xs);
-    }
-
-    .data-status .dot {
+    .dot {
       width: 9px;
       height: 9px;
-      border-radius: var(--radius-circle);
-      background: var(--color-yellow);
+      border-radius: 50%;
+      background: var(--yellow);
       display: inline-block;
     }
 
-    .data-status .dot.error {
-      background: var(--color-white);
-      border: 2px solid var(--color-yellow);
-    }
-
-    .data-status .dot.loading {
+    .dot.loading {
       animation: pulse 1s infinite;
     }
 
+    .dot.error {
+      background: var(--white);
+      border: 2px solid var(--yellow);
+    }
+
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.35; }
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.35;
+      }
     }
 
     .error-banner {
-      margin: var(--space-md);
-      padding: var(--space-md);
-      border: 2px solid var(--color-black);
-      border-left: 8px solid var(--color-yellow);
+      margin: 20px;
+      padding: 20px;
+      border: 2px solid var(--black);
+      border-left: 8px solid var(--yellow);
       border-radius: var(--radius-md);
-      background: var(--color-white);
-      color: var(--color-black);
+      background: var(--white);
       box-shadow: var(--shadow);
     }
 
     .error-banner h3 {
-      margin-bottom: var(--space-xs);
+      margin-bottom: 6px;
       font-size: 0.9rem;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -214,7 +202,6 @@
 
     .error-banner p {
       font-size: 0.75rem;
-      font-weight: 400;
     }
 
     .container {
@@ -224,17 +211,17 @@
     }
 
     .sidebar {
-      padding: var(--space-md);
+      padding: 20px;
       overflow-y: auto;
-      border-right: 1px solid var(--color-white-border);
-      background: var(--color-black);
-      color: var(--color-white);
+      border-right: 1px solid var(--white-border);
+      background: var(--black);
+      color: var(--white);
     }
 
     .sidebar h3 {
-      margin: var(--space-md) 0 var(--space-xs);
-      color: var(--color-yellow);
-      font-size: var(--font-caption);
+      margin: 20px 0 6px;
+      color: var(--yellow);
+      font-size: 0.65rem;
       font-weight: 800;
       letter-spacing: 0.16em;
       text-transform: uppercase;
@@ -247,78 +234,73 @@
     .sidebar select {
       width: 100%;
       padding: 8px 9px;
-      border: 1px solid var(--color-white-muted);
+      border: 1px solid var(--white-muted);
       border-radius: var(--radius-sm);
-      background: var(--color-black);
-      color: var(--color-white);
-      font-size: var(--font-caption);
-      font-weight: 500;
+      background: var(--black);
+      color: var(--white);
+      font-size: 0.65rem;
       cursor: pointer;
     }
 
     .filter-group label {
       padding: 4px 0;
-      color: var(--color-white);
+      color: var(--white);
       display: flex;
       align-items: center;
       gap: 7px;
-      font-size: var(--font-caption);
-      font-weight: 500;
+      font-size: 0.65rem;
       cursor: pointer;
     }
 
-    .filter-group input[type="checkbox"] {
+    .filter-group input {
       width: 13px;
       height: 13px;
-      accent-color: var(--color-yellow);
+      accent-color: var(--yellow);
     }
 
     .sidebar-divider {
       height: 1px;
-      margin: var(--space-md) 0;
-      background: var(--color-white-border);
+      margin: 20px 0;
+      background: var(--white-border);
     }
 
     .badge {
       width: 9px;
       height: 9px;
-      border: 1px solid var(--color-yellow);
-      border-radius: var(--radius-circle);
-      background: var(--color-yellow);
+      border-radius: 50%;
+      background: var(--yellow);
       display: inline-block;
     }
 
     .main {
       min-width: 0;
-      padding: var(--space-md);
+      padding: 20px;
       overflow-y: auto;
-      background: var(--color-white);
+      background: var(--white);
       display: flex;
       flex-direction: column;
-      position: relative;
     }
 
     .kpi-row {
-      margin-bottom: var(--space-md);
+      margin-bottom: 20px;
       display: grid;
       grid-template-columns: repeat(5, minmax(110px, 1fr));
-      gap: var(--space-sm);
+      gap: 12px;
     }
 
     .kpi-card {
       min-width: 0;
-      padding: var(--space-sm);
-      border: 1px solid var(--color-black);
-      border-top: 5px solid var(--color-yellow);
+      padding: 12px;
+      border: 1px solid var(--black);
+      border-top: 5px solid var(--yellow);
       border-radius: var(--radius-md);
-      background: var(--color-white);
-      color: var(--color-black);
+      background: var(--white);
       box-shadow: var(--shadow);
     }
 
     .kpi-label {
       min-height: 26px;
-      color: var(--color-black-soft);
+      color: var(--black-soft);
       font-size: 0.59rem;
       font-weight: 700;
       letter-spacing: 0.12em;
@@ -328,14 +310,13 @@
 
     .kpi-value {
       margin-top: 2px;
-      color: var(--color-black);
       font-size: 1.4rem;
       font-weight: 900;
       line-height: 1.2;
     }
 
     .kpi-sub {
-      color: var(--color-black-soft);
+      color: var(--black-soft);
       font-size: 0.58rem;
       font-weight: 500;
       letter-spacing: 0.06em;
@@ -343,10 +324,8 @@
     }
 
     .view-controls {
-      margin-bottom: var(--space-sm);
-      display: flex;
-      align-items: center;
-      gap: var(--space-xs);
+      margin-bottom: 12px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
@@ -355,29 +334,34 @@
     .month-nav button {
       min-height: 30px;
       padding: 6px 12px;
-      border: 2px solid var(--color-black);
+      border: 2px solid var(--black);
       border-radius: var(--radius-sm);
-      background: var(--color-white);
-      color: var(--color-black);
-      font-size: var(--font-caption);
+      background: var(--white);
+      color: var(--black);
+      font-size: 0.65rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: background 0.15s ease, color 0.15s ease;
+      transition: 0.15s ease;
     }
 
     .view-btn:hover,
     .print-btn:hover,
     .month-nav button:hover {
-      background: var(--color-yellow);
-      color: var(--color-black);
+      background: var(--yellow);
     }
 
-    .view-btn.active {
-      border-color: var(--color-yellow);
-      background: var(--color-yellow);
-      color: var(--color-black);
+    .view-btn.active,
+    .current-month-btn {
+      border-color: var(--yellow);
+      background: var(--yellow);
+    }
+
+    .current-month-btn:hover {
+      border-color: var(--black);
+      background: var(--black) !important;
+      color: var(--yellow);
     }
 
     .print-btn {
@@ -386,14 +370,13 @@
 
     .print-btn.show {
       display: inline-flex;
-      align-items: center;
     }
 
     .info-badge {
       padding: 4px 8px;
       border-radius: var(--radius-sm);
-      background: var(--color-black);
-      color: var(--color-yellow);
+      background: var(--black);
+      color: var(--yellow);
       font-size: 0.58rem;
       font-weight: 700;
       letter-spacing: 0.08em;
@@ -402,14 +385,11 @@
 
     .month-nav {
       margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: var(--space-xs);
+      gap: 6px;
     }
 
     .month-nav span {
       min-width: 170px;
-      color: var(--color-black);
       font-size: 0.78rem;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -437,8 +417,8 @@
 
     .month-header-cell {
       padding: 4px 0;
-      background: var(--color-black);
-      color: var(--color-yellow);
+      background: var(--black);
+      color: var(--yellow);
       font-size: 0.58rem;
       font-weight: 800;
       letter-spacing: 0.15em;
@@ -457,17 +437,17 @@
     .month-day {
       min-height: 0;
       overflow: hidden;
-      border: 1px solid var(--color-black-border);
+      border: 1px solid var(--black-border);
       border-radius: var(--radius-sm);
-      background: var(--color-white);
+      background: var(--white);
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      transition: 0.15s ease;
     }
 
     .month-day:hover {
-      border-color: var(--color-black);
+      border-color: var(--black);
       box-shadow: var(--shadow);
     }
 
@@ -478,18 +458,18 @@
 
     .month-day.today,
     .month-day.selected {
-      border: 3px solid var(--color-yellow);
+      border: 3px solid var(--yellow);
     }
 
     .month-day.selected {
-      box-shadow: 0 0 0 3px var(--color-yellow-dim);
+      box-shadow: 0 0 0 3px var(--yellow-dim);
     }
 
     .month-day-hdr {
       min-height: 24px;
       padding: 3px 6px;
-      border-bottom: 1px solid var(--color-black-border);
-      background: var(--color-black-faint);
+      border-bottom: 1px solid var(--black-border);
+      background: var(--black-faint);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -505,8 +485,7 @@
       min-width: 18px;
       padding: 1px 5px;
       border-radius: var(--radius-pill);
-      background: var(--color-yellow);
-      color: var(--color-black);
+      background: var(--yellow);
       font-size: 0.54rem;
       font-weight: 800;
       text-align: center;
@@ -521,20 +500,18 @@
     .m-event {
       margin-bottom: 2px;
       padding: 3px 4px;
-      border-left: 4px solid var(--color-yellow);
+      border-left: 4px solid var(--yellow);
       border-radius: var(--radius-sm);
-      background: var(--color-yellow-faint);
-      color: var(--color-black);
+      background: var(--yellow-faint);
       font-size: 0.55rem;
-      font-weight: 500;
       line-height: 1.25;
       pointer-events: none;
     }
 
     .m-event.ws-holiday {
-      border-left-color: var(--color-black);
-      background: var(--color-black);
-      color: var(--color-white);
+      border-left-color: var(--black);
+      background: var(--black);
+      color: var(--white);
     }
 
     .ev-time {
@@ -544,17 +521,11 @@
 
     .ev-meta {
       margin-top: 1px;
-      color: var(--color-black-soft);
+      color: var(--black-soft);
       font-size: 0.48rem;
-      font-weight: 500;
-    }
-
-    .ws-holiday .ev-meta {
-      color: var(--color-white-soft);
     }
 
     .day-shift {
-      color: var(--color-black);
       font-size: 0.45rem;
       font-weight: 800;
       vertical-align: super;
@@ -572,11 +543,9 @@
 
     .list-table {
       width: 100%;
-      overflow: hidden;
-      border: 1px solid var(--color-black);
+      border: 1px solid var(--black);
       border-collapse: collapse;
-      border-radius: var(--radius-md);
-      background: var(--color-white);
+      background: var(--white);
       box-shadow: var(--shadow);
     }
 
@@ -584,13 +553,12 @@
       position: sticky;
       top: 0;
       z-index: 2;
-      background: var(--color-black);
+      background: var(--black);
     }
 
     .list-table th {
       padding: 8px 7px;
-      border-bottom: 1px solid var(--color-black);
-      color: var(--color-yellow);
+      color: var(--yellow);
       font-size: 0.51rem;
       font-weight: 800;
       letter-spacing: 0.12em;
@@ -600,10 +568,8 @@
 
     .list-table td {
       padding: 7px;
-      border-bottom: 1px solid var(--color-black-border);
-      color: var(--color-black);
+      border-bottom: 1px solid var(--black-border);
       font-size: 0.61rem;
-      font-weight: 400;
       vertical-align: top;
     }
 
@@ -612,7 +578,7 @@
     }
 
     .list-table tbody tr:hover {
-      background: var(--color-yellow-faint);
+      background: var(--yellow-faint);
     }
 
     .ws-tag,
@@ -635,20 +601,17 @@
     .cat-tag,
     .lang-tag,
     .region-pill {
-      border: 1px solid var(--color-black);
-      background: var(--color-white);
-      color: var(--color-black);
+      border: 1px solid var(--black);
+      background: var(--white);
     }
 
     .flag-tag {
-      background: var(--color-yellow);
-      color: var(--color-black);
+      background: var(--yellow);
     }
 
     .region-pills {
-      display: flex;
-      flex-wrap: wrap;
       gap: 2px;
+      flex-wrap: wrap;
     }
 
     .panel-overlay {
@@ -670,8 +633,8 @@
       top: 0;
       right: -420px;
       z-index: 501;
-      border-left: 4px solid var(--color-yellow);
-      background: var(--color-white);
+      border-left: 4px solid var(--yellow);
+      background: var(--white);
       box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
@@ -683,17 +646,15 @@
     }
 
     .panel-header {
-      padding: var(--space-md);
-      background: var(--color-black);
-      color: var(--color-white);
+      padding: 20px;
+      background: var(--black);
+      color: var(--white);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-shrink: 0;
     }
 
     .panel-header h2 {
-      color: var(--color-white);
       font-size: 0.88rem;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -702,60 +663,55 @@
 
     .panel-date-sub {
       margin-top: 2px;
-      color: var(--color-white-soft);
-      font-size: var(--font-caption);
-      font-weight: 500;
+      color: var(--white-soft);
+      font-size: 0.65rem;
     }
 
     .panel-close {
       width: 32px;
       height: 32px;
-      border: 2px solid var(--color-yellow);
+      border: 2px solid var(--yellow);
       border-radius: var(--radius-sm);
-      background: var(--color-black);
-      color: var(--color-yellow);
+      background: var(--black);
+      color: var(--yellow);
       font-size: 1rem;
-      font-weight: 700;
       cursor: pointer;
     }
 
     .panel-close:hover {
-      background: var(--color-yellow);
-      color: var(--color-black);
+      background: var(--yellow);
+      color: var(--black);
     }
 
     .panel-body {
-      padding: var(--space-md);
+      padding: 20px;
       overflow-y: auto;
       flex: 1;
     }
 
     .panel-summary {
-      margin-bottom: var(--space-sm);
-      display: flex;
-      gap: var(--space-xs);
+      margin-bottom: 12px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
     .panel-stat {
       min-width: 80px;
       padding: 8px;
-      border: 1px solid var(--color-black);
-      border-top: 4px solid var(--color-yellow);
+      border: 1px solid var(--black);
+      border-top: 4px solid var(--yellow);
       border-radius: var(--radius-sm);
-      background: var(--color-white);
       text-align: center;
       flex: 1;
     }
 
     .ps-val {
-      color: var(--color-black);
       font-size: 1rem;
       font-weight: 900;
     }
 
     .ps-label {
-      color: var(--color-black-soft);
+      color: var(--black-soft);
       font-size: 0.5rem;
       font-weight: 700;
       letter-spacing: 0.1em;
@@ -764,31 +720,25 @@
 
     .panel-divider {
       height: 1px;
-      margin: var(--space-sm) 0;
-      background: var(--color-black-border);
+      margin: 12px 0;
+      background: var(--black-border);
     }
 
     .panel-session {
-      margin-bottom: var(--space-sm);
+      margin-bottom: 12px;
       overflow: hidden;
-      border: 1px solid var(--color-black);
+      border: 1px solid var(--black);
       border-radius: var(--radius-md);
     }
 
     .panel-session-header {
       padding: 10px;
-      border-left: 6px solid var(--color-yellow);
-      background: var(--color-yellow-faint);
+      border-left: 6px solid var(--yellow);
+      background: var(--yellow-faint);
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: var(--space-sm);
-    }
-
-    .panel-session-header.ws-holiday {
-      border-left-color: var(--color-yellow);
-      background: var(--color-black);
-      color: var(--color-white);
+      gap: 12px;
     }
 
     .panel-session-title {
@@ -798,9 +748,8 @@
 
     .panel-session-type {
       margin-top: 3px;
-      color: var(--color-black-soft);
+      color: var(--black-soft);
       font-size: 0.52rem;
-      font-weight: 500;
       display: flex;
       align-items: center;
       gap: 3px;
@@ -808,7 +757,6 @@
     }
 
     .panel-session-time {
-      color: var(--color-black);
       font-size: 0.7rem;
       font-weight: 800;
       text-align: right;
@@ -816,79 +764,74 @@
     }
 
     .tz-label {
-      color: var(--color-black-soft);
+      color: var(--black-soft);
       font-size: 0.48rem;
       font-weight: 700;
-      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .panel-session-body {
       padding: 8px 10px;
-      background: var(--color-white);
     }
 
     .detail-row {
       padding: 3px 0;
       display: flex;
       align-items: flex-start;
-      gap: var(--space-xs);
+      gap: 6px;
       font-size: 0.6rem;
     }
 
     .detail-label {
       width: 68px;
-      color: var(--color-black-soft);
+      color: var(--black-soft);
       flex-shrink: 0;
       font-size: 0.49rem;
       font-weight: 700;
-      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .panel-session-desc {
       padding: 8px 10px;
-      border-top: 1px solid var(--color-black-border);
-      background: var(--color-black-faint);
-      color: var(--color-black-soft);
+      border-top: 1px solid var(--black-border);
+      background: var(--black-faint);
+      color: var(--black-soft);
       font-size: 0.56rem;
-      font-weight: 400;
     }
 
     .register-btn {
       margin-top: 9px;
       padding: 8px 12px;
-      border: 2px solid var(--color-yellow);
+      border: 2px solid var(--yellow);
       border-radius: var(--radius-sm);
-      background: var(--color-yellow);
-      color: var(--color-black);
+      background: var(--yellow);
+      color: var(--black);
       display: inline-block;
       font-size: 0.55rem;
       font-weight: 800;
       letter-spacing: 0.1em;
       text-decoration: none;
       text-transform: uppercase;
-      transition: background 0.15s ease, color 0.15s ease;
     }
 
     .register-btn:hover {
-      border-color: var(--color-black);
-      background: var(--color-black);
-      color: var(--color-yellow);
+      border-color: var(--black);
+      background: var(--black);
+      color: var(--yellow);
     }
 
     .panel-empty {
-      padding: var(--space-xl) var(--space-md);
-      color: var(--color-black-soft);
+      padding: 48px 20px;
+      color: var(--black-soft);
       text-align: center;
     }
 
     .pe-icon {
       width: 42px;
       height: 6px;
-      margin: 0 auto var(--space-sm);
+      margin: 0 auto 12px;
       border-radius: var(--radius-pill);
-      background: var(--color-yellow);
+      background: var(--yellow);
     }
 
     .pe-text {
@@ -899,18 +842,16 @@
     }
 
     .panel-holiday-banner {
-      margin-bottom: var(--space-sm);
-      padding: var(--space-sm);
+      margin-bottom: 12px;
+      padding: 12px;
       border-radius: var(--radius-md);
-      background: var(--color-yellow);
-      color: var(--color-black);
+      background: var(--yellow);
       text-align: center;
     }
 
     .ph-text {
       font-size: 0.7rem;
       font-weight: 800;
-      letter-spacing: 0.06em;
       text-transform: uppercase;
     }
 
@@ -924,13 +865,13 @@
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: var(--color-black);
-      color: var(--color-white);
+      background: var(--black);
+      color: var(--white);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: var(--space-sm);
+      gap: 12px;
     }
 
     .loading-overlay.hidden {
@@ -940,18 +881,20 @@
     .loading-spinner {
       width: 44px;
       height: 44px;
-      border: 5px solid var(--color-white-border);
-      border-top-color: var(--color-yellow);
-      border-radius: var(--radius-circle);
+      border: 5px solid var(--white-border);
+      border-top-color: var(--yellow);
+      border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .loading-text {
-      color: var(--color-white-soft);
+      color: var(--white-soft);
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.1em;
@@ -960,19 +903,6 @@
 
     .print-header {
       display: none;
-    }
-
-    .month-day-body::-webkit-scrollbar,
-    .sidebar::-webkit-scrollbar,
-    .panel-body::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .month-day-body::-webkit-scrollbar-thumb,
-    .sidebar::-webkit-scrollbar-thumb,
-    .panel-body::-webkit-scrollbar-thumb {
-      border-radius: var(--radius-pill);
-      background: var(--color-yellow);
     }
 
     @media (max-width: 1100px) {
@@ -987,12 +917,11 @@
       }
 
       .sidebar {
-        max-height: none;
         border-right: none;
-        border-bottom: 4px solid var(--color-yellow);
+        border-bottom: 4px solid var(--yellow);
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0 var(--space-md);
+        gap: 0 20px;
       }
 
       .sidebar-divider {
@@ -1011,7 +940,7 @@
 
     @media (max-width: 768px) {
       .topbar {
-        padding: var(--space-sm);
+        padding: 12px;
         align-items: flex-start;
         flex-direction: column;
       }
@@ -1019,10 +948,6 @@
       .top-right {
         width: 100%;
         justify-content: space-between;
-      }
-
-      .container {
-        min-height: calc(100vh - 120px);
       }
 
       .sidebar {
@@ -1035,8 +960,13 @@
 
       .month-nav {
         width: 100%;
-        margin: var(--space-xs) 0 0;
+        margin: 6px 0 0;
         justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .month-nav span {
+        min-width: 130px;
       }
 
       .month-grid,
@@ -1044,10 +974,7 @@
         min-width: 700px;
       }
 
-      .month-calendar {
-        overflow-x: auto;
-      }
-
+      .month-calendar,
       .list-view {
         overflow-x: auto;
       }
@@ -1060,7 +987,6 @@
     @media print {
       body {
         overflow: visible !important;
-        background: var(--color-white);
       }
 
       .topbar,
@@ -1095,41 +1021,18 @@
         display: block !important;
       }
 
-      .print-header h2 {
-        font-size: 14px;
-        font-weight: 800;
-        text-transform: uppercase;
-      }
-
-      .print-header p {
-        color: var(--color-black-soft);
-        font-size: 8px;
-      }
-
       .list-table {
-        border: 1px solid var(--color-black);
         box-shadow: none !important;
       }
 
       .list-table th {
         padding: 3px 4px;
         font-size: 6px;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
       }
 
       .list-table td {
         padding: 2px 4px;
         font-size: 7px;
-      }
-
-      .ws-tag,
-      .cat-tag,
-      .lang-tag,
-      .flag-tag,
-      .region-pill {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
       }
 
       @page {
@@ -1139,6 +1042,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
@@ -1260,18 +1164,38 @@
       </section>
 
       <div class="view-controls">
-        <button class="view-btn active" onclick="switchView('calendar', this)">Month</button>
-        <button class="view-btn" onclick="switchView('list', this)">List</button>
-        <button class="print-btn" id="printBtn" onclick="printList()">Print</button>
+        <button class="view-btn active" onclick="switchView('calendar', this)">
+          Month
+        </button>
+        <button class="view-btn" onclick="switchView('list', this)">
+          List
+        </button>
+        <button class="print-btn" id="printBtn" onclick="window.print()">
+          Print
+        </button>
 
         <span class="info-badge" id="tzBadge">GMT</span>
         <span class="info-badge" id="regionBadge">All regions</span>
         <span class="info-badge" id="langBadge">All languages</span>
 
         <div class="month-nav">
-          <button onclick="navMonth(-1)" aria-label="Previous month">Previous</button>
+          <button onclick="navMonth(-1)" aria-label="Previous month">
+            Previous
+          </button>
+
           <span id="monthLabel">—</span>
-          <button onclick="navMonth(1)" aria-label="Next month">Next</button>
+
+          <button
+            class="current-month-btn"
+            onclick="jumpToCurrentMonth()"
+            aria-label="Jump to current month"
+          >
+            Current month
+          </button>
+
+          <button onclick="navMonth(1)" aria-label="Next month">
+            Next
+          </button>
         </div>
       </div>
 
@@ -1320,79 +1244,145 @@
         <h2 id="panelTitle">—</h2>
         <div class="panel-date-sub" id="panelDateSub">—</div>
       </div>
-      <button class="panel-close" onclick="closePanel()" aria-label="Close details">×</button>
+      <button class="panel-close" onclick="closePanel()" aria-label="Close details">
+        ×
+      </button>
     </div>
     <div class="panel-body" id="panelBody"></div>
   </aside>
 
   <script>
-    const CSV_URL = 'https://raw.githubusercontent.com/EmmaK-ID-5/Dashboard/main/Training%20Schedule.csv';
+    const CSV_URL =
+      "https://raw.githubusercontent.com/EmmaK-ID-5/Dashboard/main/Training%20Schedule.csv";
 
     const TZM = {
-      '-8': { a: 'PT' },
-      '-6': { a: 'CST' },
-      '-5': { a: 'ET' },
-      '-3': { a: 'BRT' },
-      '0': { a: 'GMT' },
-      '1': { a: 'CET' },
-      '2': { a: 'SAST' },
-      '5.5': { a: 'IST' },
-      '7': { a: 'WIB' },
-      '7.01': { a: 'ICT' },
-      '8': { a: 'CST' },
-      '10': { a: 'AEST' }
+      "-8": "PT",
+      "-6": "CST",
+      "-5": "ET",
+      "-3": "BRT",
+      "0": "GMT",
+      "1": "CET",
+      "2": "SAST",
+      "5.5": "IST",
+      "7": "WIB",
+      "7.01": "ICT",
+      "8": "CST",
+      "10": "AEST"
     };
 
+    const MN = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+
+    const RL = {
+      APAC: "APAC",
+      EMEA: "EMEA",
+      UK: "UK",
+      LATAM: "LATAM",
+      "NA-Eastern": "NA East",
+      "NA-Pacific": "NA Pacific"
+    };
+
+    let CY;
+    let CM;
+    let selDate = null;
+    let DATA = [];
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function browserDateParts() {
+      const now = new Date();
+      return {
+        year: now.getFullYear(),
+        month: now.getMonth(),
+        iso:
+          String(now.getFullYear()) +
+          "-" +
+          String(now.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(now.getDate()).padStart(2, "0")
+      };
+    }
+
     function gOff() {
-      return parseFloat(document.getElementById('tzSelector').value);
+      return parseFloat(document.getElementById("tzSelector").value);
     }
 
     function gAbbr() {
-      return TZM[document.getElementById('tzSelector').value]?.a || 'GMT';
+      return TZM[document.getElementById("tzSelector").value] || "GMT";
     }
 
     function cvt(gmt) {
-      if (!gmt) return { time: '', ds: 0 };
+      if (!gmt) return { time: "", ds: 0 };
 
-      const offset = gOff();
-      const [hours, minutes] = gmt.split(':').map(Number);
-      let total = hours * 60 + minutes + Math.round(offset * 60);
-      let dayShift = 0;
+      const [hours, minutes] = gmt.split(":").map(Number);
+      let total = hours * 60 + minutes + Math.round(gOff() * 60);
+      let ds = 0;
 
       if (total < 0) {
         total += 1440;
-        dayShift = -1;
+        ds = -1;
       }
 
       if (total >= 1440) {
         total -= 1440;
-        dayShift = 1;
+        ds = 1;
       }
 
       return {
-        time: `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`,
-        ds: dayShift
+        time:
+          String(Math.floor(total / 60)).padStart(2, "0") +
+          ":" +
+          String(total % 60).padStart(2, "0"),
+        ds
       };
     }
 
     function fmt(gmt) {
-      if (!gmt) return 'TBC';
+      if (!gmt) return "TBC";
 
-      const { time, ds } = cvt(gmt);
-      const shift = ds === 1
-        ? '<span class="day-shift">+1D</span>'
-        : ds === -1
-          ? '<span class="day-shift">−1D</span>'
-          : '';
+      const converted = cvt(gmt);
+      const shift =
+        converted.ds === 1
+          ? '<span class="day-shift">+1D</span>'
+          : converted.ds === -1
+            ? '<span class="day-shift">−1D</span>'
+            : "";
 
-      return time + shift;
+      return converted.time + shift;
     }
 
-    function fmtP(gmt) {
-      if (!gmt) return 'TBC';
+    function fmtPlain(gmt) {
+      if (!gmt) return "TBC";
 
-      const { time, ds } = cvt(gmt);
-      return time + (ds === 1 ? ' (+1 day)' : ds === -1 ? ' (−1 day)' : '');
+      const converted = cvt(gmt);
+
+      return (
+        converted.time +
+        (converted.ds === 1
+          ? " (+1 day)"
+          : converted.ds === -1
+            ? " (−1 day)"
+            : "")
+      );
     }
 
     function normalizeDate(raw) {
@@ -1401,263 +1391,82 @@
       const value = raw.trim();
 
       if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-      if (/^\d{4}\/\d{2}\/\d{2}$/.test(value)) return value.replace(/\//g, '-');
+      if (/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
+        return value.replaceAll("/", "-");
+      }
 
       const match = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
 
       if (match) {
-        const day = parseInt(match[1], 10);
-        const month = parseInt(match[2], 10);
-        const year = parseInt(match[3], 10);
+        const first = Number(match[1]);
+        const second = Number(match[2]);
+        const year = Number(match[3]);
 
-        if (day > 12) {
-          return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        let day = first;
+        let month = second;
+
+        if (second > 12) {
+          month = first;
+          day = second;
         }
 
-        if (month > 12) {
-          return `${year}-${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}`;
-        }
-
-        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        return (
+          year +
+          "-" +
+          String(month).padStart(2, "0") +
+          "-" +
+          String(day).padStart(2, "0")
+        );
       }
 
       const parsed = new Date(value);
 
-      if (!isNaN(parsed)) {
-        return `${parsed.getUTCFullYear()}-${String(parsed.getUTCMonth() + 1).padStart(2, '0')}-${String(parsed.getUTCDate()).padStart(2, '0')}`;
-      }
+      if (Number.isNaN(parsed.getTime())) return null;
 
-      return null;
+      return (
+        parsed.getUTCFullYear() +
+        "-" +
+        String(parsed.getUTCMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(parsed.getUTCDate()).padStart(2, "0")
+      );
     }
 
     function normalizeCategory(category) {
-      const value = (category || '').trim();
-
-      if (/^pm[\s_-]*cycle$/i.test(value)) {
-        return 'Core Skills';
-      }
-
-      return value;
+      const value = (category || "").trim();
+      return /^pm[\s_-]*cycle$/i.test(value) ? "Core Skills" : value;
     }
 
     function dateYear(date) {
-      return parseInt(date.substring(0, 4), 10);
+      return Number(date.substring(0, 4));
     }
 
     function dateMonth(date) {
-      return parseInt(date.substring(5, 7), 10) - 1;
+      return Number(date.substring(5, 7)) - 1;
     }
 
     function dateShort(date) {
-      const parsed = new Date(date + 'T12:00:00Z');
-      return parsed.toLocaleDateString('en-GB', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        timeZone: 'UTC'
+      return new Date(date + "T12:00:00Z").toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        timeZone: "UTC"
       });
     }
 
     function dateFull(date) {
-      const parsed = new Date(date + 'T12:00:00Z');
-      return parsed.toLocaleDateString('en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC'
+      return new Date(date + "T12:00:00Z").toLocaleDateString("en-GB", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC"
       });
-    }
-
-    let CY = 2026;
-    let CM = 0;
-    let selDate = null;
-    let curView = 'calendar';
-    let DATA = [];
-
-    const MN = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-
-    const RL = {
-      'APAC': 'APAC',
-      'EMEA': 'EMEA',
-      'UK': 'UK',
-      'LATAM': 'LATAM',
-      'NA-Eastern': 'NA East',
-      'NA-Pacific': 'NA Pacific'
-    };
-
-    function showError(title, message) {
-      console.error(title, message);
-
-      document.getElementById('errorContainer').innerHTML = `
-        <div class="error-banner">
-          <h3>${title}</h3>
-          <p>${message}</p>
-        </div>
-      `;
-    }
-
-    async function loadCSV() {
-      try {
-        const response = await fetch(CSV_URL);
-
-        if (!response.ok) {
-          showError('Network error', `HTTP ${response.status}: ${response.statusText}`);
-          setStatus('error', `HTTP ${response.status}`);
-          return;
-        }
-
-        let text = await response.text();
-
-        if (text.charCodeAt(0) === 0xFEFF) {
-          text = text.substring(1);
-        }
-
-        const lines = text
-          .split(/\r?\n/)
-          .map(line => line.trim())
-          .filter(Boolean);
-
-        if (lines.length < 2) {
-          showError('CSV unavailable', 'The data source does not contain a header and at least one data row.');
-          setStatus('error', 'CSV unavailable');
-          return;
-        }
-
-        const headers = parseCSVLine(lines[0]);
-        const colMap = {};
-
-        headers.forEach((header, index) => {
-          colMap[header.trim().replace(/^"|"$/g, '').replace(/^\uFEFF/, '')] = index;
-        });
-
-        function findCol(name) {
-          if (colMap[name] !== undefined) return colMap[name];
-
-          const lowerName = name.toLowerCase();
-
-          for (const [key, value] of Object.entries(colMap)) {
-            if (key.toLowerCase() === lowerName) return value;
-          }
-
-          return undefined;
-        }
-
-        const C = {
-          date: findCol('SessionDate'),
-          title: findCol('SessionTitle'),
-          gmt: findCol('StartTimeGMT'),
-          cat: findCol('SessionCategory'),
-          type: findCol('SessionType'),
-          ws: findCol('Workstream'),
-          trainer: findCol('TrainerName'),
-          regions: findCol('TargetRegions'),
-          lang: findCol('Language'),
-          status: findCol('Status'),
-          flag: findCol('EventFlag'),
-          flagDetail: findCol('FlagDetail'),
-          desc: findCol('Description'),
-          link: findCol('Link')
-        };
-
-        if (C.date === undefined) {
-          showError(
-            'Missing column',
-            `The SessionDate column could not be found. Available columns: ${headers.join(', ')}`
-          );
-          setStatus('error', 'Missing SessionDate');
-          return;
-        }
-
-        const newData = [];
-        let skipped = 0;
-
-        for (let i = 1; i < lines.length; i++) {
-          const values = parseCSVLine(lines[i]);
-
-          const get = column => {
-            if (column === undefined || values[column] === undefined) return '';
-            return values[column].trim().replace(/^"|"$/g, '');
-          };
-
-          const date = normalizeDate(get(C.date));
-
-          if (!date) {
-            skipped++;
-            continue;
-          }
-
-          const title = get(C.title);
-          const flag = get(C.flag) || 'Training Session';
-
-          newData.push({
-            date,
-            gmt: get(C.gmt),
-            title: title || get(C.flagDetail) || '',
-            cat: normalizeCategory(get(C.cat)),
-            type: get(C.type),
-            ws: get(C.ws) || 'Tech L&D',
-            trainer: get(C.trainer) || 'Unknown',
-            regions: (get(C.regions) || '')
-              .split(';')
-              .map(region => region.trim())
-              .filter(Boolean),
-            lang: get(C.lang) || 'English',
-            status: get(C.status) || 'Scheduled',
-            flag,
-            flagDetail: get(C.flagDetail),
-            desc: get(C.desc),
-            link: get(C.link)
-          });
-        }
-
-        if (!newData.length) {
-          showError(
-            'No valid data',
-            `${skipped} rows were skipped because they contained blank or invalid dates.`
-          );
-          setStatus('error', 'No valid rows');
-          return;
-        }
-
-        DATA = newData;
-
-        const first = DATA.find(item =>
-          item.flag === 'Training Session' && item.ws !== 'Pencil'
-        )?.date || DATA[0].date;
-
-        CY = dateYear(first);
-        CM = dateMonth(first);
-
-        buildDynamicFilters();
-        render();
-        setStatus('live', `Loaded ${DATA.length} records`);
-        document.getElementById('errorContainer').innerHTML = '';
-      } catch (error) {
-        showError('Load error', error.message);
-        setStatus('error', 'Failed to load');
-      } finally {
-        document.getElementById('loadingOverlay').classList.add('hidden');
-      }
-    }
-
-    function setStatus(type, message) {
-      const element = document.getElementById('dataStatus');
-      const dotClass = type === 'live'
-        ? 'dot'
-        : type === 'error'
-          ? 'dot error'
-          : 'dot loading';
-
-      element.innerHTML = `<span class="${dotClass}"></span>${message}`;
     }
 
     function parseCSVLine(line) {
       const result = [];
-      let current = '';
+      let current = "";
       let inQuotes = false;
 
       for (let i = 0; i < line.length; i++) {
@@ -1670,9 +1479,9 @@
           } else {
             inQuotes = !inQuotes;
           }
-        } else if (character === ',' && !inQuotes) {
+        } else if (character === "," && !inQuotes) {
           result.push(current);
-          current = '';
+          current = "";
         } else {
           current += character;
         }
@@ -1682,113 +1491,269 @@
       return result;
     }
 
+    function setStatus(type, message) {
+      const dotClass =
+        type === "live"
+          ? "dot"
+          : type === "error"
+            ? "dot error"
+            : "dot loading";
+
+      document.getElementById("dataStatus").innerHTML =
+        `<span class="${dotClass}"></span>${escapeHTML(message)}`;
+    }
+
+    function showError(title, message) {
+      document.getElementById("errorContainer").innerHTML = `
+        <div class="error-banner">
+          <h3>${escapeHTML(title)}</h3>
+          <p>${escapeHTML(message)}</p>
+        </div>
+      `;
+    }
+
+    async function loadCSV() {
+      try {
+        const response = await fetch(CSV_URL);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        let text = await response.text();
+
+        if (text.charCodeAt(0) === 0xfeff) {
+          text = text.substring(1);
+        }
+
+        const lines = text
+          .split(/\r?\n/)
+          .map(line => line.trim())
+          .filter(Boolean);
+
+        if (lines.length < 2) {
+          throw new Error("The CSV does not contain any data rows.");
+        }
+
+        const headers = parseCSVLine(lines[0]).map(header =>
+          header.trim().replace(/^\uFEFF/, "")
+        );
+
+        function findCol(name) {
+          return headers.findIndex(
+            header => header.toLowerCase() === name.toLowerCase()
+          );
+        }
+
+        const columns = {
+          date: findCol("SessionDate"),
+          title: findCol("SessionTitle"),
+          gmt: findCol("StartTimeGMT"),
+          cat: findCol("SessionCategory"),
+          type: findCol("SessionType"),
+          ws: findCol("Workstream"),
+          trainer: findCol("TrainerName"),
+          regions: findCol("TargetRegions"),
+          lang: findCol("Language"),
+          status: findCol("Status"),
+          flag: findCol("EventFlag"),
+          flagDetail: findCol("FlagDetail"),
+          desc: findCol("Description"),
+          link: findCol("Link")
+        };
+
+        if (columns.date < 0) {
+          throw new Error("The SessionDate column could not be found.");
+        }
+
+        DATA = lines
+          .slice(1)
+          .map(line => {
+            const values = parseCSVLine(line);
+
+            const get = column =>
+              column < 0 || values[column] === undefined
+                ? ""
+                : values[column].trim();
+
+            const date = normalizeDate(get(columns.date));
+
+            if (!date) return null;
+
+            const flag = get(columns.flag) || "Training Session";
+
+            return {
+              date,
+              title:
+                get(columns.title) || get(columns.flagDetail) || "",
+              gmt: get(columns.gmt),
+              cat: normalizeCategory(get(columns.cat)),
+              type: get(columns.type),
+              ws: get(columns.ws) || "Tech L&D",
+              trainer: get(columns.trainer) || "Unknown",
+              regions: get(columns.regions)
+                .split(";")
+                .map(region => region.trim())
+                .filter(Boolean),
+              lang: get(columns.lang) || "English",
+              status: get(columns.status) || "Scheduled",
+              flag,
+              flagDetail: get(columns.flagDetail),
+              desc: get(columns.desc),
+              link: get(columns.link)
+            };
+          })
+          .filter(Boolean);
+
+        if (!DATA.length) {
+          throw new Error("No rows with valid session dates were found.");
+        }
+
+        /*
+         * Automatically open the dashboard on the browser's
+         * current local month and year after the data loads.
+         */
+        const currentDate = browserDateParts();
+        CY = currentDate.year;
+        CM = currentDate.month;
+
+        buildDynamicFilters();
+        render();
+
+        document.getElementById("errorContainer").innerHTML = "";
+        setStatus("live", `Loaded ${DATA.length} records`);
+      } catch (error) {
+        showError("Load error", error.message);
+        setStatus("error", "Failed to load");
+      } finally {
+        document.getElementById("loadingOverlay").classList.add("hidden");
+      }
+    }
+
     function buildDynamicFilters() {
       const workstreams = [...new Set(DATA.map(item => item.ws))]
-        .filter(workstream => workstream && workstream !== 'Pencil')
+        .filter(value => value && value !== "Pencil")
         .sort();
 
-      document.getElementById('wsFilters').innerHTML = workstreams
-        .map(workstream => `
-          <label>
-            <input type="checkbox" value="${workstream}" checked onchange="render()">
-            <span class="badge"></span>
-            ${workstream}
-          </label>
-        `)
-        .join('');
-
-      const categories = [...new Set(DATA.map(item => normalizeCategory(item.cat)))]
+      const categories = [
+        ...new Set(DATA.map(item => normalizeCategory(item.cat)))
+      ]
         .filter(Boolean)
         .sort();
 
-      document.getElementById('catFilters').innerHTML = categories
-        .map(category => `
-          <label>
-            <input type="checkbox" value="${category}" checked onchange="render()">
-            ${category}
-          </label>
-        `)
-        .join('');
-
       const flags = [...new Set(DATA.map(item => item.flag))]
-        .filter(Boolean);
-
-      document.getElementById('flagFilters').innerHTML = flags
-        .map(flag => `
-          <label>
-            <input type="checkbox" value="${flag}" checked onchange="render()">
-            ${flag}
-          </label>
-        `)
-        .join('');
+        .filter(Boolean)
+        .sort();
 
       const languages = [...new Set(DATA.map(item => item.lang))]
         .filter(Boolean)
         .sort();
 
-      document.getElementById('langSelector').innerHTML =
+      const regions = [
+        ...new Set(DATA.flatMap(item => item.regions))
+      ].sort();
+
+      document.getElementById("wsFilters").innerHTML = workstreams
+        .map(
+          value => `
+            <label>
+              <input type="checkbox" value="${escapeHTML(value)}" checked onchange="render()">
+              <span class="badge"></span>
+              ${escapeHTML(value)}
+            </label>
+          `
+        )
+        .join("");
+
+      document.getElementById("catFilters").innerHTML = categories
+        .map(
+          value => `
+            <label>
+              <input type="checkbox" value="${escapeHTML(value)}" checked onchange="render()">
+              ${escapeHTML(value)}
+            </label>
+          `
+        )
+        .join("");
+
+      document.getElementById("flagFilters").innerHTML = flags
+        .map(
+          value => `
+            <label>
+              <input type="checkbox" value="${escapeHTML(value)}" checked onchange="render()">
+              ${escapeHTML(value)}
+            </label>
+          `
+        )
+        .join("");
+
+      document.getElementById("langSelector").innerHTML =
         '<option value="All">All languages</option>' +
         languages
-          .map(language => `<option value="${language}">${language}</option>`)
-          .join('');
+          .map(
+            value =>
+              `<option value="${escapeHTML(value)}">${escapeHTML(value)}</option>`
+          )
+          .join("");
 
-      const regions = new Set();
-
-      DATA.forEach(item => {
-        item.regions.forEach(region => regions.add(region));
-      });
-
-      document.getElementById('regionSelector').innerHTML =
+      document.getElementById("regionSelector").innerHTML =
         '<option value="All">All regions</option>' +
-        [...regions]
-          .sort()
-          .map(region => `<option value="${region}">${RL[region] || region}</option>`)
-          .join('');
+        regions
+          .map(
+            value =>
+              `<option value="${escapeHTML(value)}">${escapeHTML(RL[value] || value)}</option>`
+          )
+          .join("");
     }
 
-    function gC(id) {
-      return [...document.querySelectorAll(`#${id} input:checked`)]
-        .map(input => input.value);
+    function checkedValues(id) {
+      return [...document.querySelectorAll(`#${id} input:checked`)].map(
+        input => input.value
+      );
     }
 
     function passesFilters(item, includeMonth = true) {
-      const selectedWorkstreams = gC('wsFilters');
-      const selectedRegion = document.getElementById('regionSelector').value;
-      const selectedLanguage = document.getElementById('langSelector').value;
-      const selectedCategories = gC('catFilters');
-      const selectedFlags = gC('flagFilters');
-      const selectedStatus = document.getElementById('statusFilter').value;
+      const workstreams = checkedValues("wsFilters");
+      const categories = checkedValues("catFilters");
+      const flags = checkedValues("flagFilters");
+      const region = document.getElementById("regionSelector").value;
+      const language = document.getElementById("langSelector").value;
+      const status = document.getElementById("statusFilter").value;
 
-      if (includeMonth && (dateYear(item.date) !== CY || dateMonth(item.date) !== CM)) {
+      if (
+        includeMonth &&
+        (dateYear(item.date) !== CY || dateMonth(item.date) !== CM)
+      ) {
         return false;
       }
 
-      if (item.ws === 'Pencil') return false;
-      if (!selectedWorkstreams.includes(item.ws)) return false;
+      if (item.ws === "Pencil" || !workstreams.includes(item.ws)) {
+        return false;
+      }
 
       if (
+        item.flag === "Training Session" &&
         item.cat &&
-        !selectedCategories.includes(normalizeCategory(item.cat)) &&
-        item.flag === 'Training Session'
+        !categories.includes(normalizeCategory(item.cat))
       ) {
         return false;
       }
 
-      if (!selectedFlags.includes(item.flag)) return false;
-      if (selectedStatus !== 'All' && item.status !== selectedStatus) return false;
+      if (!flags.includes(item.flag)) return false;
+      if (status !== "All" && item.status !== status) return false;
 
       if (
-        selectedRegion !== 'All' &&
+        region !== "All" &&
         item.regions.length &&
-        !item.regions.includes(selectedRegion)
+        !item.regions.includes(region)
       ) {
         return false;
       }
 
       if (
-        selectedLanguage !== 'All' &&
+        language !== "All" &&
         item.lang &&
-        item.lang !== selectedLanguage
+        item.lang !== language
       ) {
         return false;
       }
@@ -1796,46 +1761,42 @@
       return true;
     }
 
-    function getMD() {
-      return DATA.filter(item => passesFilters(item, true));
-    }
-
-    function gMW(year, month) {
+    function getMonthWeeks(year, month) {
       const first = new Date(Date.UTC(year, month, 1));
       const last = new Date(Date.UTC(year, month + 1, 0));
-
       const start = new Date(first);
       const firstDay = start.getUTCDay() || 7;
+
       start.setUTCDate(start.getUTCDate() - (firstDay - 1));
 
       const end = new Date(last);
       const endDay = end.getUTCDay() || 7;
 
       if (endDay < 5) {
-        end.setUTCDate(end.getUTCDate() + (5 - endDay));
+        end.setUTCDate(end.getUTCDate() + 5 - endDay);
       } else if (endDay > 5) {
-        end.setUTCDate(end.getUTCDate() + (12 - endDay));
+        end.setUTCDate(end.getUTCDate() + 12 - endDay);
       }
 
+      const todayISO = browserDateParts().iso;
       const weeks = [];
-      let cursor = new Date(start);
       let week = [];
+      const cursor = new Date(start);
 
       while (cursor <= end) {
-        const day = cursor.getUTCDay();
+        const weekday = cursor.getUTCDay();
 
-        if (day >= 1 && day <= 5) {
-          const iso = cursor.toISOString().split('T')[0];
+        if (weekday >= 1 && weekday <= 5) {
+          const iso = cursor.toISOString().split("T")[0];
 
           week.push({
             date: iso,
             day: cursor.getUTCDate(),
-            month: cursor.getUTCMonth(),
-            isCM: cursor.getUTCMonth() === month,
-            isT: iso === new Date().toISOString().split('T')[0]
+            isCurrentMonth: cursor.getUTCMonth() === month,
+            isToday: iso === todayISO
           });
 
-          if (day === 5) {
+          if (weekday === 5) {
             weeks.push(week);
             week = [];
           }
@@ -1848,205 +1809,213 @@
       return weeks;
     }
 
-    function wsC(workstream, flag) {
-      if (flag === 'Public Holiday') return 'ws-holiday';
-      return workstream === 'Tech L&D' ? 'ws-tech-ld' : 'ws-ld';
-    }
-
-    function fT(flag, detail) {
-      return flag === 'Training Session'
-        ? ''
-        : `<span class="flag-tag">${detail || flag}</span>`;
-    }
-
     function render() {
-      if (!DATA.length) return;
+      if (!DATA.length || CY === undefined || CM === undefined) return;
 
-      const filtered = getMD();
-      const weeks = gMW(CY, CM);
+      const filtered = DATA.filter(item => passesFilters(item));
+      const weeks = getMonthWeeks(CY, CM);
       const timezone = gAbbr();
-      const regionSelect = document.getElementById('regionSelector');
-      const languageSelect = document.getElementById('langSelector');
+      const regionSelect = document.getElementById("regionSelector");
+      const languageSelect = document.getElementById("langSelector");
 
-      document.getElementById('monthLabel').textContent = `${MN[CM]} ${CY}`;
-      document.getElementById('tzBadge').textContent = timezone;
-      document.getElementById('regionBadge').textContent =
+      document.getElementById("monthLabel").textContent = `${MN[CM]} ${CY}`;
+      document.getElementById("tzBadge").textContent = timezone;
+      document.getElementById("regionBadge").textContent =
         regionSelect.options[regionSelect.selectedIndex].text;
-      document.getElementById('langBadge').textContent =
+      document.getElementById("langBadge").textContent =
         languageSelect.options[languageSelect.selectedIndex].text;
 
-      const sessions = filtered.filter(item => item.flag === 'Training Session');
-      const activeRegions = new Set();
+      const sessions = filtered.filter(
+        item => item.flag === "Training Session"
+      );
 
-      sessions.forEach(item => {
-        item.regions.forEach(region => activeRegions.add(region));
-      });
+      const activeRegions = new Set(
+        sessions.flatMap(item => item.regions)
+      );
 
-      document.getElementById('kpiTotal').textContent = sessions.length;
-      document.getElementById('kpiCoreSkills').textContent =
-        sessions.filter(item => normalizeCategory(item.cat) === 'Core Skills').length;
-      document.getElementById('kpiWebinars').textContent =
-        sessions.filter(item => item.cat === 'Webinars').length;
-      document.getElementById('kpiRegions').textContent = activeRegions.size;
-      document.getElementById('kpiAlerts').textContent =
-        filtered.filter(item => item.flag === 'Public Holiday').length;
+      document.getElementById("kpiTotal").textContent = sessions.length;
+      document.getElementById("kpiCoreSkills").textContent =
+        sessions.filter(
+          item => normalizeCategory(item.cat) === "Core Skills"
+        ).length;
+      document.getElementById("kpiWebinars").textContent =
+        sessions.filter(item => item.cat === "Webinars").length;
+      document.getElementById("kpiRegions").textContent =
+        activeRegions.size;
+      document.getElementById("kpiAlerts").textContent =
+        filtered.filter(item => item.flag === "Public Holiday").length;
 
       const byDate = {};
 
       filtered.forEach(item => {
-        if (!byDate[item.date]) byDate[item.date] = [];
-        byDate[item.date].push(item);
+        (byDate[item.date] ||= []).push(item);
       });
 
-      const grid = document.getElementById('monthGrid');
+      const grid = document.getElementById("monthGrid");
       grid.style.gridTemplateRows = `repeat(${weeks.length}, 1fr)`;
-      grid.innerHTML = '';
 
-      weeks.forEach(week => {
-        week.forEach(dayInfo => {
-          const events = (byDate[dayInfo.date] || [])
-            .sort((a, b) => (a.gmt || '').localeCompare(b.gmt || ''));
+      grid.innerHTML = weeks
+        .flat()
+        .map(day => {
+          const events = [...(byDate[day.date] || [])].sort((a, b) =>
+            (a.gmt || "").localeCompare(b.gmt || "")
+          );
 
-          const sessionCount = events.filter(
-            item => item.flag === 'Training Session'
+          const count = events.filter(
+            item => item.flag === "Training Session"
           ).length;
 
-          let eventHTML = '';
+          const eventHTML = events.length
+            ? events
+                .map(item => {
+                  const title = escapeHTML(
+                    item.title || item.flagDetail || "Event"
+                  );
 
-          events.forEach(item => {
-            const title = item.title || item.flagDetail;
-            const time = item.gmt
-              ? `<span class="ev-time">${fmt(item.gmt)}</span> `
-              : '';
+                  const meta =
+                    item.flag === "Training Session"
+                      ? `<div class="ev-meta">${escapeHTML(item.trainer)} · ${escapeHTML(
+                          item.regions.slice(0, 2).join(", ")
+                        )}${item.regions.length > 2 ? "…" : ""}</div>`
+                      : "";
 
-            const meta = item.flag === 'Training Session'
-              ? `<div class="ev-meta">${item.trainer} · ${item.regions.slice(0, 2).join(', ')}${item.regions.length > 2 ? '…' : ''}</div>`
-              : '';
+                  return `
+                    <div class="m-event ${item.flag === "Public Holiday" ? "ws-holiday" : ""}">
+                      ${item.gmt ? `<span class="ev-time">${fmt(item.gmt)}</span> ` : ""}
+                      ${title}
+                      ${meta}
+                    </div>
+                  `;
+                })
+                .join("")
+            : day.isCurrentMonth
+              ? '<div style="font-size:.55rem;color:rgba(0,0,0,.35);padding:2px">—</div>'
+              : "";
 
-            eventHTML += `
-              <div class="m-event ${wsC(item.ws, item.flag)}">
-                ${time}${title}${meta}
-              </div>
-            `;
-          });
-
-          if (!events.length && dayInfo.isCM) {
-            eventHTML = '<div style="font-size:.55rem;color:rgba(0,0,0,.35);padding:2px">—</div>';
-          }
-
-          grid.innerHTML += `
+          return `
             <div
-              class="month-day${dayInfo.isCM ? '' : ' outside'}${dayInfo.isT ? ' today' : ''}${selDate === dayInfo.date ? ' selected' : ''}"
-              onclick="openP('${dayInfo.date}')"
+              class="month-day${day.isCurrentMonth ? "" : " outside"}${day.isToday ? " today" : ""}${selDate === day.date ? " selected" : ""}"
+              onclick="openPanel('${day.date}')"
             >
               <div class="month-day-hdr">
-                <span class="date-num">${dayInfo.day}</span>
-                ${sessionCount ? `<span class="session-count">${sessionCount}</span>` : ''}
+                <span class="date-num">${day.day}</span>
+                ${count ? `<span class="session-count">${count}</span>` : ""}
               </div>
               <div class="month-day-body">${eventHTML}</div>
             </div>
           `;
-        });
-      });
+        })
+        .join("");
 
-      const listBody = document.getElementById('listBody');
-      listBody.innerHTML = '';
-
-      [...filtered]
-        .sort((a, b) =>
-          a.date.localeCompare(b.date) ||
-          (a.gmt || '').localeCompare(b.gmt || '')
+      document.getElementById("listBody").innerHTML = [...filtered]
+        .sort(
+          (a, b) =>
+            a.date.localeCompare(b.date) ||
+            (a.gmt || "").localeCompare(b.gmt || "")
         )
-        .forEach(item => {
-          const title = item.title || item.flagDetail || '—';
-          const regionPills = item.regions
-            .map(region => `<span class="region-pill">${RL[region] || region}</span>`)
-            .join('');
+        .map(item => {
+          const regions = item.regions
+            .map(
+              region =>
+                `<span class="region-pill">${escapeHTML(RL[region] || region)}</span>`
+            )
+            .join("");
 
-          const category = item.cat
-            ? `<span class="cat-tag">${normalizeCategory(item.cat)}</span>`
-            : '—';
-
-          const language = item.lang
-            ? `<span class="lang-tag">${item.lang}</span>`
-            : '—';
-
-          listBody.innerHTML += `
-            <tr onclick="openP('${item.date}')">
-              <td>${dateShort(item.date)}</td>
+          return `
+            <tr onclick="openPanel('${item.date}')">
+              <td>${escapeHTML(dateShort(item.date))}</td>
               <td>
-                ${item.gmt ? `${fmt(item.gmt)} <span style="font-size:.48rem;color:rgba(0,0,0,.55)">${timezone}</span>` : '—'}
+                ${item.gmt ? fmt(item.gmt) : "—"}
+                <span style="font-size:.48rem;color:rgba(0,0,0,.55)">
+                  ${escapeHTML(timezone)}
+                </span>
               </td>
               <td>
-                <strong>${title}</strong><br>
-                <span style="font-size:.52rem;color:rgba(0,0,0,.55)">${item.type || ''}</span>
+                <strong>${escapeHTML(item.title || item.flagDetail || "—")}</strong><br>
+                <span style="font-size:.52rem;color:rgba(0,0,0,.55)">
+                  ${escapeHTML(item.type)}
+                </span>
               </td>
-              <td>${category}</td>
-              <td>${language}</td>
-              <td><span class="ws-tag">${item.ws}</span></td>
-              <td>${item.trainer}</td>
-              <td><div class="region-pills">${regionPills}</div></td>
-              <td>${fT(item.flag, item.flagDetail)}</td>
+              <td>${item.cat ? `<span class="cat-tag">${escapeHTML(normalizeCategory(item.cat))}</span>` : "—"}</td>
+              <td><span class="lang-tag">${escapeHTML(item.lang)}</span></td>
+              <td><span class="ws-tag">${escapeHTML(item.ws)}</span></td>
+              <td>${escapeHTML(item.trainer)}</td>
+              <td><div class="region-pills">${regions}</div></td>
+              <td>${item.flag === "Training Session" ? "" : `<span class="flag-tag">${escapeHTML(item.flagDetail || item.flag)}</span>`}</td>
             </tr>
           `;
-        });
+        })
+        .join("");
 
-      document.getElementById('printTitle').textContent =
+      document.getElementById("printTitle").textContent =
         `OLIVER Training Schedule — ${MN[CM]} ${CY}`;
 
-      document.getElementById('printMeta').textContent =
+      document.getElementById("printMeta").textContent =
         `Region: ${regionSelect.options[regionSelect.selectedIndex].text} · ` +
         `Language: ${languageSelect.options[languageSelect.selectedIndex].text} · ` +
-        `Times in ${timezone} · Printed ${new Date().toLocaleDateString('en-GB')}`;
+        `Times in ${timezone} · Printed ${new Date().toLocaleDateString("en-GB")}`;
 
       if (
         selDate &&
-        document.getElementById('detailPanel').classList.contains('open')
+        document.getElementById("detailPanel").classList.contains("open")
       ) {
-        renderP(selDate);
+        renderPanel(selDate);
       }
     }
 
-    function openP(date) {
+    function openPanel(date) {
       selDate = date;
-      document.getElementById('panelOverlay').classList.add('open');
-      document.getElementById('detailPanel').classList.add('open');
-      renderP(date);
+      document.getElementById("panelOverlay").classList.add("open");
+      document.getElementById("detailPanel").classList.add("open");
+      renderPanel(date);
       render();
     }
 
     function closePanel() {
       selDate = null;
-      document.getElementById('panelOverlay').classList.remove('open');
-      document.getElementById('detailPanel').classList.remove('open');
-      render();
+      document.getElementById("panelOverlay").classList.remove("open");
+      document.getElementById("detailPanel").classList.remove("open");
+
+      if (DATA.length) render();
     }
 
-    function renderP(dateString) {
+    function renderPanel(date) {
       const timezone = gAbbr();
-
-      document.getElementById('panelTitle').textContent = dateShort(dateString);
-      document.getElementById('panelDateSub').textContent =
-        `${dateFull(dateString)} · Times in ${timezone}`;
-
       const dayData = DATA
-        .filter(item => item.date === dateString && passesFilters(item, false))
-        .sort((a, b) => (a.gmt || '').localeCompare(b.gmt || ''));
+        .filter(
+          item =>
+            item.date === date &&
+            passesFilters(item, false)
+        )
+        .sort((a, b) =>
+          (a.gmt || "").localeCompare(b.gmt || "")
+        );
 
-      const body = document.getElementById('panelBody');
+      document.getElementById("panelTitle").textContent = dateShort(date);
+      document.getElementById("panelDateSub").textContent =
+        `${dateFull(date)} · Times in ${timezone}`;
+
+      const body = document.getElementById("panelBody");
 
       if (!dayData.length) {
         body.innerHTML = `
           <div class="panel-empty">
             <div class="pe-icon"></div>
-            <div class="pe-text">No sessions scheduled with the current filters</div>
+            <div class="pe-text">
+              No sessions scheduled with the current filters
+            </div>
           </div>
         `;
         return;
       }
 
-      const sessions = dayData.filter(item => item.flag === 'Training Session');
-      const holidays = dayData.filter(item => item.flag === 'Public Holiday');
+      const sessions = dayData.filter(
+        item => item.flag === "Training Session"
+      );
+
+      const holidays = dayData.filter(
+        item => item.flag === "Public Holiday"
+      );
 
       let html = `
         <div class="panel-summary">
@@ -2065,88 +2034,120 @@
         </div>
       `;
 
-      holidays.forEach(holiday => {
-        html += `
-          <div class="panel-holiday-banner">
-            <div class="ph-text">${holiday.title || holiday.flagDetail}</div>
-            <div class="ph-regions">
-              ${holiday.regions.map(region => RL[region] || region).join(' · ')}
+      html += holidays
+        .map(
+          holiday => `
+            <div class="panel-holiday-banner">
+              <div class="ph-text">
+                ${escapeHTML(holiday.title || holiday.flagDetail || "Public Holiday")}
+              </div>
+              <div class="ph-regions">
+                ${escapeHTML(
+                  holiday.regions
+                    .map(region => RL[region] || region)
+                    .join(" · ")
+                )}
+              </div>
             </div>
-          </div>
-        `;
-      });
+          `
+        )
+        .join("");
 
       if (holidays.length && sessions.length) {
         html += '<div class="panel-divider"></div>';
       }
 
-      sessions.forEach(session => {
-        const category = session.cat
-          ? `<span class="cat-tag">${normalizeCategory(session.cat)}</span>`
-          : '';
+      html += sessions
+        .map(session => {
+          const regions =
+            session.regions
+              .map(region => RL[region] || region)
+              .join(", ") || "—";
 
-        const language = session.lang
-          ? `<span class="lang-tag">${session.lang}</span>`
-          : '';
+          const registerButton = session.link
+            ? `
+              <a
+                href="${escapeHTML(session.link)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="register-btn"
+              >
+                Register now
+              </a>
+            `
+            : "";
 
-        const registerButton = session.link
-          ? `<a href="${session.link}" target="_blank" rel="noopener noreferrer" class="register-btn">Register now</a>`
-          : '';
+          return `
+            <div class="panel-session">
+              <div class="panel-session-header">
+                <div>
+                  <div class="panel-session-title">
+                    ${escapeHTML(session.title || "Training session")}
+                  </div>
+                  <div class="panel-session-type">
+                    ${escapeHTML(session.type)}
+                    <span class="ws-tag">${escapeHTML(session.ws)}</span>
+                    ${session.cat ? `<span class="cat-tag">${escapeHTML(normalizeCategory(session.cat))}</span>` : ""}
+                    <span class="lang-tag">${escapeHTML(session.lang)}</span>
+                  </div>
+                </div>
 
-        html += `
-          <div class="panel-session">
-            <div class="panel-session-header ${wsC(session.ws, session.flag)}">
-              <div>
-                <div class="panel-session-title">${session.title}</div>
-                <div class="panel-session-type">
-                  ${session.type || ''}
-                  <span class="ws-tag">${session.ws}</span>
-                  ${category}
-                  ${language}
+                <div class="panel-session-time">
+                  ${session.gmt ? fmt(session.gmt) : "TBC"}<br>
+                  <span class="tz-label">${escapeHTML(timezone)}</span>
                 </div>
               </div>
-              <div class="panel-session-time">
-                ${session.gmt ? fmt(session.gmt) : 'TBC'}<br>
-                <span class="tz-label">${timezone}</span>
-              </div>
-            </div>
 
-            <div class="panel-session-body">
-              <div class="detail-row">
-                <span class="detail-label">Trainer</span>
-                <span>${session.trainer}</span>
+              <div class="panel-session-body">
+                <div class="detail-row">
+                  <span class="detail-label">Trainer</span>
+                  <span>${escapeHTML(session.trainer)}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Regions</span>
+                  <span>${escapeHTML(regions)}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Language</span>
+                  <span>${escapeHTML(session.lang || "—")}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">GMT</span>
+                  <span>${escapeHTML(session.gmt || "TBC")} GMT</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Local</span>
+                  <span>${escapeHTML(fmtPlain(session.gmt))} ${escapeHTML(timezone)}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Status</span>
+                  <span>${escapeHTML(session.status)}</span>
+                </div>
+                ${registerButton}
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Regions</span>
-                <span>${session.regions.map(region => RL[region] || region).join(', ') || '—'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Language</span>
-                <span>${session.lang || '—'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">GMT</span>
-                <span>${session.gmt || 'TBC'} GMT</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Local</span>
-                <span>${fmtP(session.gmt)} ${timezone}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Status</span>
-                <span>${session.status}</span>
-              </div>
-              ${registerButton}
-            </div>
 
-            <div class="panel-session-desc">
-              ${session.desc || 'Description to be added.'}
+              <div class="panel-session-desc">
+                ${escapeHTML(session.desc || "Description to be added.")}
+              </div>
             </div>
-          </div>
-        `;
-      });
+          `;
+        })
+        .join("");
 
       body.innerHTML = html;
+    }
+
+    function jumpToCurrentMonth() {
+      const currentDate = browserDateParts();
+
+      CY = currentDate.year;
+      CM = currentDate.month;
+      selDate = null;
+
+      document.getElementById("panelOverlay").classList.remove("open");
+      document.getElementById("detailPanel").classList.remove("open");
+
+      render();
     }
 
     function navMonth(direction) {
@@ -2162,41 +2163,34 @@
         CY--;
       }
 
-      render();
+      closePanel();
     }
 
     function switchView(view, button) {
-      curView = view;
-
-      document.querySelectorAll('.view-btn').forEach(item => {
-        item.classList.remove('active');
+      document.querySelectorAll(".view-btn").forEach(item => {
+        item.classList.remove("active");
       });
 
-      button.classList.add('active');
+      button.classList.add("active");
 
       document
-        .querySelector('.month-calendar')
-        .classList.toggle('active', view === 'calendar');
+        .getElementById("calendarView")
+        .classList.toggle("active", view === "calendar");
 
       document
-        .querySelector('.list-view')
-        .classList.toggle('active', view === 'list');
+        .getElementById("listView")
+        .classList.toggle("active", view === "list");
 
       document
-        .getElementById('printBtn')
-        .classList.toggle('show', view === 'list');
+        .getElementById("printBtn")
+        .classList.toggle("show", view === "list");
     }
 
-    function printList() {
-      window.print();
-    }
-
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') closePanel();
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closePanel();
     });
 
     loadCSV();
   </script>
 </body>
 </html>
-
